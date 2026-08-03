@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Call Sheet — Cold Call Trainer</title>
+<title>The Call Sheet — Live Voice AI Trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -120,23 +120,31 @@
 
   .transcript{
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-    height: 380px; overflow-y: auto; padding: 18px; display:flex; flex-direction: column; gap: 14px; margin-bottom: 16px;
+    height: 340px; overflow-y: auto; padding: 18px; display:flex; flex-direction: column; gap: 14px; margin-bottom: 16px;
   }
   .msg{ max-width: 88%; padding: 10px 13px; border-radius: var(--radius); font-size: 14.5px; line-height:1.5; }
   .msg.them{ background: var(--panel-raised); align-self: flex-start; border-left: 2px solid var(--gold-dim); }
   .msg.me{ background: rgba(217,164,65,0.14); align-self: flex-end; border-right: 2px solid var(--gold); }
   .msg .who{ font-family:'Space Mono', monospace; font-size: 10.5px; color: var(--text-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
 
-  .options{ display:flex; flex-direction: column; gap: 10px; }
-  .option-btn{
-    text-align: left; background: var(--panel-raised); border: 1px solid var(--line); color: var(--text);
-    padding: 12px 14px; border-radius: var(--radius); font-size: 14px; cursor: pointer; line-height: 1.4;
-    transition: border-color 0.15s ease, background 0.15s ease;
+  /* Voice interactive box */
+  .voice-box{
+    background: var(--panel-raised);
+    border: 1px solid var(--gold-dim);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 12px;
   }
-  .option-btn:hover{ border-color: var(--gold); background: rgba(217,164,65,0.08); }
-  .option-btn .opt-letter{ color: var(--gold); font-family:'Space Mono', monospace; margin-right: 8px; }
+  .mic-status{
+    font-family: 'Space Mono', monospace; font-size: 13px; color: var(--gold); margin-bottom: 10px;
+  }
+  .live-transcript{
+    font-size: 14px; font-style: italic; color: var(--text-dim); min-height: 24px; margin-bottom: 12px;
+  }
+  .voice-controls{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
-  .call-controls{ display:flex; justify-content: space-between; align-items:center; margin-top: 14px; }
+  .call-controls{ display:flex; justify-content: space-between; align-items:center; margin-top: 10px; }
   .status-line{ font-size: 12.5px; color: var(--text-dim); font-family:'Space Mono', monospace; }
 
   .score-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 14px; margin: 18px 0 22px; }
@@ -153,6 +161,15 @@
 
   .footer-note{ margin-top: 34px; font-size: 12px; color: var(--text-dim); border-top: 1px solid var(--line); padding-top: 14px; line-height: 1.6;}
   .actions{ display:flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  
+  /* Fallback options styling if speech recognition isn't supported */
+  .options{ display:flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .option-btn{
+    text-align: left; background: var(--panel); border: 1px solid var(--line); color: var(--text);
+    padding: 10px 12px; border-radius: var(--radius); font-size: 13.5px; cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .option-btn:hover{ border-color: var(--gold); background: rgba(217,164,65,0.08); }
 </style>
 </head>
 <body>
@@ -160,16 +177,16 @@
 
   <div class="signage">
     <h1>The Call <span>Sheet</span></h1>
-    <div class="tag">AI Voice Agent Simulator · Gatekeeper → GM / Maintenance Drill</div>
+    <div class="tag">Live Two-Way Voice Call Simulator · Gatekeeper → GM / Maintenance</div>
   </div>
 
   <!-- SETUP SCREEN -->
   <div class="screen active" id="screen-setup">
     <div class="card">
       <div class="field">
-        <label>Your calling reason (one line)</label>
+        <label>Your core pitch / reason for calling</label>
         <textarea id="reasonText">Hi, this is Razin — I work with a facility maintenance and cleaning company, and I wanted to see who handles that for your building.</textarea>
-        <div class="hint">This is what you'll say when the script gives you the option to state your reason directly. Edit it to match your actual pitch.</div>
+        <div class="hint">When you talk to the AI voice agent, you can speak naturally or use this as a reference guide.</div>
       </div>
 
       <div class="row">
@@ -196,11 +213,11 @@
         </select>
       </div>
 
-      <button class="btn" id="startCallBtn">Start AI Voice Agent Mock Call</button>
+      <button class="btn" id="startCallBtn">Start Live Voice Call</button>
     </div>
 
     <div class="footer-note">
-      Fully offline — no API key, no account, no cost. You are interacting with a simulated AI voice agent engine designed to test your front-desk routing, objection-handling, and meeting booking conversion rate. Get past the front desk and you'll be dynamically routed to either the General Manager or the Maintenance Lead.
+      <strong>Voice Setup Note:</strong> This application uses your browser's built-in speech recognition and text-to-speech audio. When you click start, allow microphone permissions when prompted so you can speak directly to the AI agent out loud.
     </div>
   </div>
 
@@ -223,14 +240,28 @@
             <div class="dot"></div><div class="fname">Appointment</div><div class="fcode">GOAL</div>
           </div>
         </div>
-        <button class="btn danger" id="restartBtn" style="width:100%;">Restart Setup</button>
+        <button class="btn danger" id="restartBtn" style="width:100%;">End Call / Setup</button>
       </div>
 
       <div>
         <div class="transcript" id="transcript"></div>
+
+        <!-- LIVE VOICE INTERACTION CONTAINER -->
+        <div class="voice-box">
+          <div class="mic-status" id="micStatus">AI Agent is speaking... please listen.</div>
+          <div class="live-transcript" id="liveTranscript">"Listening to your voice..."</div>
+          <div class="voice-controls">
+            <button class="btn" id="micToggleBtn" disabled>Listening...</button>
+            <button class="btn secondary" id="repeatAudioBtn">Repeat Agent Voice</button>
+          </div>
+        </div>
+
+        <!-- Fallback option buttons if speech recognition is tricky -->
+        <div style="font-size: 11.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">Or click a suggested response if speech isn't catching:</div>
         <div class="options" id="options"></div>
+
         <div class="call-controls">
-          <div class="status-line" id="statusLine">AI Voice Agent Connected</div>
+          <div class="status-line" id="statusLine">Live Audio Connected</div>
         </div>
       </div>
     </div>
@@ -240,7 +271,7 @@
   <div class="screen" id="screen-feedback">
     <div id="feedbackContent"></div>
     <div class="actions">
-      <button class="btn" id="retryBtn">Run Another Call</button>
+      <button class="btn" id="retryBtn">Run Another Voice Call</button>
     </div>
   </div>
 
@@ -261,23 +292,22 @@ const state = {
 const el = id => document.getElementById(id);
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  window.speechSynthesis.cancel(); // Stop talking if switching screens
   el(id).classList.add('active');
 }
 
 function goalPhraseAsk(){
-  if(state.goal === 'callback') return "Could I call you back Thursday at 10am once I've pulled a few numbers together?";
-  if(state.goal === 'info') return "Could I just grab your direct email or extension so I can send details straight over?";
+  if(state.goal === 'callback') return "Could I call you back Thursday at 10am once I've pulled numbers together?";
+  if(state.goal === 'info') return "Could I grab your direct email or extension to send details straight over?";
   return "How about Thursday at 10am — I can have our rep swing by for a quick 20-minute walkthrough?";
 }
 function goalPhraseVague(){
-  if(state.goal === 'callback') return "You could just try me back sometime, honestly.";
-  if(state.goal === 'info') return "You can just find our info online, probably.";
-  return "Whenever's convenient for you, honestly.";
+  return "Whenever is convenient for you, honestly.";
 }
 function goalPhraseConfirm(){
-  if(state.goal === 'callback') return "Alright, Thursday 10am — I'll be by the phone. Talk then.";
-  if(state.goal === 'info') return "It's ops@[thebusiness].com, ask for me directly. Take care.";
-  return "Great, Thursday at 10am — I'll pencil that in. Thanks for calling.";
+  if(state.goal === 'callback') return "Alright, Thursday 10am. Talk then.";
+  if(state.goal === 'info') return "It's ops at the business dot com. Take care.";
+  return "Great, Thursday at 10am — I'll pencil that in. Thanks.";
 }
 
 function buildStory(){
@@ -286,117 +316,117 @@ function buildStory(){
 
   return {
     gk_open: {
-      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      speaker: 'Front Desk (AI Voice)', stage: 'gatekeeper',
       text: pick([
         "Hi, thanks for calling — this is Priya at the front desk. How can I help you today?",
         "Front desk, this is Priya. What can I do for you?",
         "Front desk. Just so you know, if this is a sales call, we get about twenty of these a day."
       ]),
       options: [
-        { label: state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:3}, note: "Leading with a clear, specific reason gets you further than small talk or a vague ask." },
-        { label: "Hey, how's your day going so far?", next: 'gk_smalltalk', delta: {rapport:3}, note: "Small talk builds warmth, but don't forget to land the actual reason for your call quickly." },
-        { label: "Can you just put me through to whoever handles maintenance?", next: 'gk_pushy', delta: {ask_clarity:-1, rapport:-2}, note: "Asking to be transferred before explaining why usually reads as pushy and gets stalled." }
+        { label: state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:3}, note: "Leading with a clear reason gets past gatekeepers effectively." },
+        { label: "Hey, how's your day going so far?", next: 'gk_smalltalk', delta: {rapport:3}, note: "Small talk builds warmth before transitioning to your pitch." },
+        { label: "Can you put me through to whoever handles maintenance?", next: 'gk_pushy', delta: {ask_clarity:-1, rapport:-2}, note: "Transfer requests without context often trigger gatekeeper pushback." }
       ]
     },
     gk_smalltalk: {
-      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      speaker: 'Front Desk (AI Voice)', stage: 'gatekeeper',
       text: pick([
         "Oh, it's going alright, thanks for asking! Busy morning. What's this about?",
         "It's fine, thanks — hectic, but fine. What's this regarding?",
-        "It's fine. I've got three lines blinking, so what do you need?"
+        "It's fine. I've got lines blinking, so what do you need?"
       ]),
       options: [
-        { label: state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:2, rapport:2}, note: "Good — you warmed her up first, then got straight to the point." },
-        { label: "Just a quick question about who handles your building's cleaning and maintenance.", next: 'gk_afterReason', delta: {ask_clarity:1, rapport:1}, note: "Clear enough, though naming your actual company earlier builds more trust." }
+        { label: state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:2, rapport:2}, note: "Nice job warming her up and following up with your actual reason." },
+        { label: "Just checking who handles cleaning and maintenance here.", next: 'gk_afterReason', delta: {ask_clarity:1, rapport:1}, note: "Clear and direct." }
       ]
     },
     gk_pushy: {
-      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
-      text: "I can't just transfer you without knowing what it's about — we get a lot of cold calls here.",
+      speaker: 'Front Desk (AI Voice)', stage: 'gatekeeper',
+      text: "I can't transfer you without knowing what it's about — we get a lot of cold calls.",
       options: [
-        { label: "Fair enough — " + state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:1, objection_handling:2, rapport:1}, note: "Recovering with a real reason after being pushy is fine — just try to lead with it next time." },
-        { label: "It'll only take two minutes of their time, I promise.", next: 'gk_afterReason', delta: {ask_clarity:-1, objection_handling:-1}, note: "Repeating the ask without answering her question tends to burn goodwill fast." }
+        { label: "Fair enough — " + state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:1, objection_handling:2, rapport:1}, note: "Good recovery providing context after hitting friction." },
+        { label: "It'll only take two minutes, I promise.", next: 'gk_afterReason', delta: {ask_clarity:-1, objection_handling:-1}, note: "Pushing without answering her screening question hurts rapport." }
       ]
     },
     gk_afterReason: {
-      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      speaker: 'Front Desk (AI Voice)', stage: 'gatekeeper',
       text: pick([
-        "Oh okay — actually I think we did get something about that before. Let me see who's free.",
-        "Hm, okay. We already work with a cleaning company though, so I'm not sure they'll want to talk.",
-        "We've got a vendor for that already, and honestly most people just email a proposal instead of calling."
+        "Oh okay — I think we had something about that. Let me see who's free.",
+        "Hm, ok. We already work with a cleaning company though, so I'm not sure they want to talk.",
+        "We've got a vendor for that already, most people just email a proposal."
       ]),
       options: d === 0
-        ? [ { label: "Great, thank you.", next: 'gk_transfer_check', delta: {}, note: "Easy gatekeepers don't need much convincing — but you'll face tougher ones, so keep sharpening the pitch." } ]
+        ? [ { label: "Great, thank you.", next: 'gk_transfer_check', delta: {}, note: "Smooth sailing with an easy gatekeeper." } ]
         : [
-            { label: "Totally understandable — most of our clients had a vendor too before switching. Could I get two minutes with whoever manages that, just to compare?", next: 'gk_transfer_check', delta: {objection_handling:3, ask_clarity:1}, note: "Acknowledging the objection before making a small, specific ask is exactly the right move." },
-            { label: "That's okay, we can definitely beat their pricing.", next: 'gk_transfer_check', delta: {objection_handling:-1}, note: "Claiming to beat pricing you haven't seen sounds like a generic sales line — it can work, but it's weak." },
-            { label: "No worries, I'll just send an email then.", next: 'gk_blocked_soft', delta: {objection_handling:-2, close:-2}, note: "Backing off the phone call entirely when you were this close usually means losing the lead." }
+            { label: "Totally understandable — most clients had a vendor too before switching. Could I get two minutes with whoever manages that to compare?", next: 'gk_transfer_check', delta: {objection_handling:3, ask_clarity:1}, note: "Acknowleging their current vendor before pitching a low-pressure comparison is ideal." },
+            { label: "That's fine, we can definitely beat their pricing.", next: 'gk_transfer_check', delta: {objection_handling:-1}, note: "Claiming to beat unseen pricing sounds generic." },
+            { label: "No worries, I'll just email instead.", next: 'gk_blocked_soft', delta: {objection_handling:-2, close:-2}, note: "Backing off the phone too quickly drops the opportunity." }
           ]
     },
     gk_transfer_check: {
-      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
-      text: state.hasGM
-        ? "One sec, let me see if the GM is free to talk..."
-        : "We don't really have an on-site GM — let me grab our facilities lead, he handles all of that.",
-      options: [ { label: "Continue", next: state.hasGM ? 'gm_open' : 'maint_open', delta: {}, note: null } ]
+      speaker: 'Front Desk (AI Voice)', stage: 'gatekeeper',
+      text: state.hasGM ? "One sec, let me see if the General Manager is free..." : "We don't have an on-site GM — let me grab our facilities lead.",
+      options: [ { label: "Continue to decision maker", next: state.hasGM ? 'gm_open' : 'maint_open', delta: {}, note: null } ]
     },
     gm_open: {
-      speaker: 'General Manager (AI Agent)', stage: 'gm',
-      text: "This is Rashed, I run this office — Priya said you had something about cleaning and maintenance?",
+      speaker: 'General Manager (AI Voice)', stage: 'gm',
+      text: "This is Rashed, I run this office — Priya said you had something regarding maintenance?",
       options: [
-        { label: state.reasonText + " I wanted to see if it'd be worth 15 minutes to walk through what we could offer for your building.", next: 'decision_objection', delta: {ask_clarity:3, rapport:1}, note: "Restating your reason and making a specific, time-bound ask is a strong opener with a decision-maker." },
-        { label: "Yeah, just wanted to see if you're happy with your current cleaning setup.", next: 'decision_objection', delta: {ask_clarity:1, rapport:2}, note: "Friendly, but a bit soft — decision-makers usually respond better to a concrete reason for the call." },
-        { label: "We're the best facility maintenance company in the area, you should really switch to us.", next: 'decision_objection', delta: {ask_clarity:-2, rapport:-2}, note: "Unsupported superlatives like 'the best' tend to trigger skepticism instead of interest." }
+        { label: state.reasonText + " Is it worth 15 minutes to walk through what we offer?", next: 'decision_objection', delta: {ask_clarity:3, rapport:1}, note: "Strong, time-bound pitch to a decision maker." },
+        { label: "Just wanted to see if you're happy with your current cleaning setup.", next: 'decision_objection', delta: {ask_clarity:1, rapport:2}, note: "Friendly, though a bit soft." },
+        { label: "We're the best cleaning company around, you should switch.", next: 'decision_objection', delta: {ask_clarity:-2, rapport:-2}, note: "Superlatives can trigger immediate skepticism." }
       ]
     },
     maint_open: {
-      speaker: 'Maintenance Lead (AI Agent)', stage: 'maintenance',
-      text: "Hey, this is Kamal, I handle maintenance and building upkeep here — what's up?",
+      speaker: 'Maintenance Lead (AI Voice)', stage: 'maintenance',
+      text: "Hey, this is Kamal, I handle maintenance and upkeep here — what's up?",
       options: [
-        { label: state.reasonText + " I wanted to see if it'd be worth 15 minutes to walk through what we could offer for your building.", next: 'decision_objection', delta: {ask_clarity:3, rapport:1}, note: "Restating your reason and making a specific, time-bound ask is a strong opener with a decision-maker." },
-        { label: "Yeah, just wanted to see if you're happy with your current cleaning setup.", next: 'decision_objection', delta: {ask_clarity:1, rapport:2}, note: "Friendly, but a bit soft — decision-makers usually respond better to a concrete reason for the call." },
-        { label: "We're the best facility maintenance company in the area, you should really switch to us.", next: 'decision_objection', delta: {ask_clarity:-2, rapport:-2}, note: "Unsupported superlatives like 'the best' tend to trigger skepticism instead of interest." }
+        { label: state.reasonText + " Is it worth 15 minutes to walk through what we offer?", next: 'decision_objection', delta: {ask_clarity:3, rapport:1}, note: "Clear and direct value proposition." },
+        { label: "Just checking if you're happy with your current cleaning setup.", next: 'decision_objection', delta: {ask_clarity:1, rapport:2}, note: "Soft opening." },
+        { label: "We're the best facility company around, you should switch.", next: 'decision_objection', delta: {ask_clarity:-2, rapport:-2}, note: "Unsupported claims hurt credibility." }
       ]
     },
     decision_objection: {
-      speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: () => state.hasGM ? 'gm' : 'maintenance',
+      speaker: () => state.hasGM ? 'General Manager (AI Voice)' : 'Maintenance Lead (AI Voice)', stage: () => state.hasGM ? 'gm' : 'maintenance',
       text: pick([
-        "Sounds interesting, though I'd want to know it's not going to cost more than what we're doing now.",
-        "We're locked into a contract with our current provider until next year though.",
-        "Honestly we've had three vendors try to pitch us this quarter. What makes you different?"
+        "Sounds interesting, but I need to know it won't cost more than our current provider.",
+        "We're locked into a contract with our current provider until next year.",
+        "Honestly we've had three vendors pitch us this quarter. What makes you different?"
       ]),
       options: [
-        { label: "Understood — even if you're not ready to switch, a lot of clients just have us do a free walkthrough now so the comparison's ready when the contract's up. Could we grab 20 minutes on-site this week?", next: 'booking_offer', delta: {objection_handling:3, close:2}, note: "Reframing the ask around 'no pressure to switch yet' is a great way to get a low-friction yes." },
-        { label: "We're cheaper and more reliable, trust me.", next: 'booking_offer', delta: {objection_handling:-1, close:-1}, note: "'Trust me' claims without evidence rarely move a skeptical decision-maker." },
-        { label: "Oh okay, no worries, I'll let you go then.", next: 'blocked_business', delta: {objection_handling:-2, close:-3}, note: "Folding at the first objection from a decision-maker usually ends the call for good." }
+        { label: "Even if you're not ready to switch, many clients have us do a free walkthrough so comparison numbers are ready when your contract ends. Can we grab 20 minutes on-site this week?", next: 'booking_offer', delta: {objection_handling:3, close:2}, note: "Framing around a low-friction walkthrough is a stellar approach." },
+        { label: "We're cheaper and more reliable, trust me.", next: 'booking_offer', delta: {objection_handling:-1, close:-1}, note: "'Trust me' statements rarely convince decision makers." },
+        { label: "Oh okay, no worries, I'll let you go.", next: 'blocked_business', delta: {objection_handling:-2, close:-3}, note: "Folding on the first objection closes the door." }
       ]
     },
     booking_offer: {
-      speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: () => state.hasGM ? 'gm' : 'maintenance',
-      text: "Alright, what did you have in mind?",
+      speaker: () => state.hasGM ? 'General Manager (AI Voice)' : 'Maintenance Lead (AI Voice)', stage: () => state.hasGM ? 'gm' : 'maintenance',
+      text: "Alright, what day did you have in mind?",
       options: [
-        { label: goalPhraseAsk(), next: 'booked_success', delta: {close:4, ask_clarity:2}, note: "Proposing a specific day and time is what actually gets things on a calendar." },
-        { label: goalPhraseVague(), next: 'booking_soft', delta: {close:-1, ask_clarity:-1}, note: "Leaving the timing open-ended makes it easy for the other side to never follow up." },
-        { label: "I really think you should just say yes now, this offer's only good today.", next: 'blocked_business', delta: {close:-3, rapport:-3}, note: "Artificial urgency on a first call usually reads as pressure, not persuasion." }
+        { label: goalPhraseAsk(), next: 'booked_success', delta: {close:4, ask_clarity:2}, note: "Proposing a specific day and time secures calendar slots." },
+        { label: goalPhraseVague(), next: 'booking_soft', delta: {close:-1, ask_clarity:-1}, note: "Vague scheduling leads to ghosting." },
+        { label: "You have to say yes today, this offer expires now.", next: 'blocked_business', delta: {close:-3, rapport:-3}, note: "Artificial pressure backfires." }
       ]
     },
     booking_soft: {
-      speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: () => state.hasGM ? 'gm' : 'maintenance',
-      text: "Let's just say sometime Thursday afternoon.",
+      speaker: () => state.hasGM ? 'General Manager (AI Voice)' : 'Maintenance Lead (AI Voice)', stage: () => state.hasGM ? 'gm' : 'maintenance',
+      text: "Let's say sometime Thursday afternoon.",
       options: [
-        { label: "Great — let's lock in 2pm specifically so I can have my rep plan the route.", next: 'booked_success', delta: {close:2, ask_clarity:2}, note: "Nice recovery — pinning a loose window down to an exact time closes the loop properly." },
-        { label: "Okay, sometime Thursday then, I'll follow up.", next: 'booked_soft_end', delta: {close:0}, note: "This technically 'books' something, but a vague window is easy to lose to a reschedule or a no-show." }
+        { label: "Let's lock in 2pm specifically so my rep can plan the route.", next: 'booked_success', delta: {close:2, ask_clarity:2}, note: "Great recovery pinning down an exact hour." },
+        { label: "Sounds good, Thursday then.", next: 'booked_soft_end', delta: {close:0}, note: "A loose window works, but exact times are safer." }
       ]
     },
-    booked_success: { speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: 'booked', text: goalPhraseConfirm(), outcome: 'booked', options: [] },
-    booked_soft_end: { speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: 'booked', text: "Sure, sometime Thursday — talk then.", outcome: 'booked', options: [] },
-    blocked_business: { speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: 'blocked', text: "I appreciate the call, but we're all set — take care.", outcome: 'blocked', options: [] },
-    gk_blocked_soft: { speaker: 'Front Desk (AI Agent)', stage: 'blocked', text: "No problem, I'll let them know you called. Have a good one.", outcome: 'blocked', options: [] }
+    booked_success: { speaker: () => state.hasGM ? 'General Manager (AI Voice)' : 'Maintenance Lead (AI Voice)', stage: 'booked', text: goalPhraseConfirm(), outcome: 'booked', options: [] },
+    booked_soft_end: { speaker: () => state.hasGM ? 'General Manager (AI Voice)' : 'Maintenance Lead (AI Voice)', stage: 'booked', text: "Sure, Thursday. Talk then.", outcome: 'booked', options: [] },
+    blocked_business: { speaker: () => state.hasGM ? 'General Manager (AI Voice)' : 'Maintenance Lead (AI Voice)' : 'Front Desk (AI Voice)', stage: 'blocked', text: "I appreciate the call, but we're all set. Take care.", outcome: 'blocked', options: [] },
+    gk_blocked_soft: { speaker: 'Front Desk (AI Voice)', stage: 'blocked', text: "No problem, I'll pass the message. Have a good one.", outcome: 'blocked', options: [] }
   };
 }
 
 let story = null;
 let currentNodeId = 'gk_open';
+let recognition = null;
+let isListening = false;
 
 function resolveField(node, key){
   return typeof node[key] === 'function' ? node[key]() : node[key];
@@ -413,14 +443,16 @@ function pushMsg(who, text){
   el('transcript').appendChild(wrap);
   el('transcript').scrollTop = el('transcript').scrollHeight;
 }
+
 function pushMe(text){
   const wrap = document.createElement('div');
   wrap.className = 'msg me';
   const whoEl = document.createElement('div');
-  whoEl.className = 'who'; whoEl.textContent = 'You';
+  whoEl.className = 'who'; whoEl.textContent = 'You (Voice)';
   const body = document.createElement('div');
   body.textContent = text;
-  wrap.appendChild(whoEl); wrap.appendChild(body);
+  wrap.appendChild(wrapOpts => wrapOpts); // standard append
+  wrap.appendChild(body);
   el('transcript').appendChild(wrap);
   el('transcript').scrollTop = el('transcript').scrollHeight;
 }
@@ -438,7 +470,7 @@ function updateDirectory(newStage){
     el('floor-gatekeeper').classList.add('cleared');
     el(contactFloor).classList.add('cleared');
     el('floor-booked').classList.add('cleared');
-    el('statusLine').textContent = 'Goal secured.';
+    el('statusLine').textContent = 'Goal secured successfully!';
   } else if(newStage === 'blocked'){
     const wasContact = state.stage === 'gm' || state.stage === 'maintenance';
     if(wasContact){
@@ -452,34 +484,154 @@ function updateDirectory(newStage){
   state.stage = newStage;
 }
 
+// Speak text out loud using browser Text-to-Speech
+function speakAgentText(text, callback){
+  if (!('speechSynthesis' in window)) {
+    if(callback) callback();
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 1.05;
+  utterance.pitch = currentNodeId.startsWith('gk_') ? 1.1 : 0.95; // Slight voice variance for receptionist vs managers
+  
+  utterance.onend = () => {
+    if(callback) callback();
+  };
+  utterance.onerror = () => {
+    if(callback) callback();
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
 function renderNode(){
   const node = story[currentNodeId];
   const speaker = resolveField(node, 'speaker');
   const stage = resolveField(node, 'stage');
+  
   pushMsg(speaker, node.text);
   updateDirectory(stage);
 
+  // Read out loud
+  el('micStatus').textContent = `${speaker} is speaking...`;
+  el('micToggleBtn').disabled = true;
+  el('micToggleBtn').textContent = "Agent Speaking...";
+
+  speakAgentText(node.text, () => {
+    if(node.options.length === 0){
+      el('micStatus').textContent = "Call finished.";
+      el('micToggleBtn').textContent = "Call Ended";
+      el('options').innerHTML = '';
+      const doneBtn = document.createElement('button');
+      doneBtn.className = 'btn';
+      doneBtn.textContent = 'View Performance & Coaching Feedback';
+      doneBtn.addEventListener('click', () => showFeedback(node.outcome));
+      el('options').appendChild(doneBtn);
+      return;
+    }
+
+    // Ready for user voice input
+    el('micStatus').textContent = "Your turn! Speak into your mic or click an option below:";
+    el('micToggleBtn').disabled = false;
+    el('micToggleBtn').textContent = "🎤 Listening for Your Voice...";
+    startListening(node.options);
+  });
+
+  // Render clickable options as a fallback / helper reference
   const optsWrap = el('options');
   optsWrap.innerHTML = '';
-
-  if(node.options.length === 0){
-    el('statusLine').textContent = node.outcome === 'booked' ? 'Call complete — goal secured.' : 'Call complete — ended without the goal.';
-    const doneBtn = document.createElement('button');
-    doneBtn.className = 'btn';
-    doneBtn.textContent = 'See Feedback & Scores';
-    doneBtn.addEventListener('click', () => showFeedback(node.outcome));
-    optsWrap.appendChild(doneBtn);
-    return;
-  }
-
-  const letters = ['A','B','C'];
-  node.options.forEach((opt, i) => {
+  node.options.forEach((opt) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.innerHTML = `<span class="opt-letter">${letters[i]}.</span>${opt.label}`;
-    btn.addEventListener('click', () => choose(opt));
+    btn.textContent = "↳ " + opt.label;
+    btn.addEventListener('click', () => {
+      stopListening();
+      window.speechSynthesis.cancel();
+      choose(opt);
+    });
     optsWrap.appendChild(btn);
   });
+}
+
+// Setup Speech Recognition
+function initSpeechRecognition(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    el('liveTranscript').textContent = "Speech recognition not supported in this browser. Use buttons below.";
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    let final = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        final += event.results[i][0].transcript;
+      } else {
+        interim += event.results[i][0].transcript;
+      }
+    }
+    if(interim) el('liveTranscript').textContent = `Hearing: "${interim}"`;
+    if(final){
+      el('liveTranscript').textContent = `You said: "${final}"`;
+      matchSpokenInput(final);
+    }
+  };
+
+  recognition.onerror = () => {
+    if(isListening) {
+      try { recognition.start(); } catch(e){}
+    }
+  };
+
+  recognition.onend = () => {
+    if(isListening) {
+      try { recognition.start(); } catch(e){}
+    }
+  };
+}
+
+function startListening(options){
+  if(!recognition) return;
+  isListening = true;
+  try { recognition.start(); } catch(e){}
+}
+
+function stopListening(){
+  isListening = false;
+  if(recognition) {
+    try { recognition.stop(); } catch(e){}
+  }
+}
+
+// Match speech or fallback to closest option
+function matchSpokenInput(spokenText){
+  stopListening();
+  const node = story[currentNodeId];
+  // Simple matching: pick the first option or match keyword, default to option A or best match
+  let chosenOpt = node.options[0];
+  
+  // If multiple options, check for keyword overlap
+  const lowerSpoken = spokenText.toLowerCase();
+  for(let opt of node.options){
+    const words = opt.label.toLowerCase().split(' ');
+    let matches = words.filter(w => w.length > 3 && lowerSpoken.includes(w)).length;
+    if(matches > 0){
+      chosenOpt = opt;
+      break;
+    }
+  }
+
+  pushMe(spokenText + ` (Matched choice)`);
+  Object.keys(chosenOpt.delta || {}).forEach(k => { state.scores[k] += chosenOpt.delta[k]; });
+  if(chosenOpt.note) state.path.push(chosenOpt.note);
+  currentNodeId = chosenOpt.next;
+  renderNode();
 }
 
 function choose(opt){
@@ -505,7 +657,7 @@ function startCall(){
 
   el('transcript').innerHTML = '';
   document.querySelectorAll('.floor').forEach(f => f.classList.remove('active','cleared','blocked'));
-  el('statusLine').textContent = 'AI Voice Agent Active';
+  el('statusLine').textContent = 'Live Audio Connected';
   showScreen('screen-call');
   renderNode();
 }
@@ -513,13 +665,15 @@ function startCall(){
 function clamp(n){ return Math.max(0, Math.min(100, Math.round(n))); }
 
 function showFeedback(outcome){
+  stopListening();
+  window.speechSynthesis.cancel();
   const s = state.scores;
   Object.keys(s).forEach(k => s[k] = clamp(s[k]));
   const overall = clamp((s.rapport + s.gatekeeper_handling + s.objection_handling + s.ask_clarity + s.close) / 5);
   const outcomeLabel = outcome === 'booked' ? 'Goal Secured' : 'Call Ended — No Goal';
 
   let tips = state.path.filter(Boolean);
-  if(tips.length === 0) tips = ["Solid, clean run — try the Hard difficulty next to put your objection handling to a real test."];
+  if(tips.length === 0) tips = ["Clean call run — try increasing the difficulty level to test your handling skills."];
   tips = tips.slice(-4);
 
   el('feedbackContent').innerHTML = `
@@ -534,15 +688,22 @@ function showFeedback(outcome){
       <div class="score-item"><div class="label">Ask Clarity</div><div class="val">${s.ask_clarity}</div></div>
       <div class="score-item"><div class="label">Close</div><div class="val">${s.close}</div></div>
     </div>
-    <h3>AI Coach Coaching Notes</h3>
+    <h3>Voice Coach Notes</h3>
     <ul class="tips">${tips.map(t => `<li>${t}</li>`).join('')}</ul>
   `;
   showScreen('screen-feedback');
 }
 
-el('startCallBtn').addEventListener('click', startCall);
-el('restartBtn').addEventListener('click', () => showScreen('screen-setup'));
+el('startCallBtn').addEventListener('click', () => {
+  startCall();
+  initSpeechRecognition();
+});
+el('restartBtn').addEventListener('click', () => { stopListening(); showScreen('screen-setup'); });
 el('retryBtn').addEventListener('click', () => showScreen('screen-setup'));
+el('repeatAudioBtn').addEventListener('click', () => {
+  const node = story[currentNodeId];
+  if(node) speakAgentText(node.text);
+});
 </script>
 </body>
 </html>
