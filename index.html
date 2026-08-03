@@ -120,14 +120,13 @@
 
   .transcript{
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-    height: 340px; overflow-y: auto; padding: 18px; display:flex; flex-direction: column; gap: 14px; margin-bottom: 16px;
+    height: 320px; overflow-y: auto; padding: 18px; display:flex; flex-direction: column; gap: 14px; margin-bottom: 16px;
   }
   .msg{ max-width: 88%; padding: 10px 13px; border-radius: var(--radius); font-size: 14.5px; line-height:1.5; }
   .msg.them{ background: var(--panel-raised); align-self: flex-start; border-left: 2px solid var(--gold-dim); }
   .msg.me{ background: rgba(217,164,65,0.14); align-self: flex-end; border-right: 2px solid var(--gold); }
   .msg .who{ font-family:'Space Mono', monospace; font-size: 10.5px; color: var(--text-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
 
-  /* Voice interactive box */
   .voice-box{
     background: var(--panel-raised);
     border: 1px solid var(--gold-dim);
@@ -136,12 +135,8 @@
     text-align: center;
     margin-bottom: 12px;
   }
-  .mic-status{
-    font-family: 'Space Mono', monospace; font-size: 13px; color: var(--gold); margin-bottom: 10px;
-  }
-  .live-transcript{
-    font-size: 14px; font-style: italic; color: var(--text-dim); min-height: 24px; margin-bottom: 12px;
-  }
+  .mic-status{ font-family: 'Space Mono', monospace; font-size: 13px; color: var(--gold); margin-bottom: 8px; }
+  .live-transcript{ font-size: 13.5px; font-style: italic; color: var(--text-dim); min-height: 22px; margin-bottom: 12px; }
   .voice-controls{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
   .call-controls{ display:flex; justify-content: space-between; align-items:center; margin-top: 10px; }
@@ -162,7 +157,6 @@
   .footer-note{ margin-top: 34px; font-size: 12px; color: var(--text-dim); border-top: 1px solid var(--line); padding-top: 14px; line-height: 1.6;}
   .actions{ display:flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
   
-  /* Fallback options styling if speech recognition isn't supported */
   .options{ display:flex; flex-direction: column; gap: 8px; margin-top: 10px; }
   .option-btn{
     text-align: left; background: var(--panel); border: 1px solid var(--line); color: var(--text);
@@ -186,7 +180,7 @@
       <div class="field">
         <label>Your core pitch / reason for calling</label>
         <textarea id="reasonText">Hi, this is Razin — I work with a facility maintenance and cleaning company, and I wanted to see who handles that for your building.</textarea>
-        <div class="hint">When you talk to the AI voice agent, you can speak naturally or use this as a reference guide.</div>
+        <div class="hint">When you talk to the AI voice agent, you can speak out loud or click any option below.</div>
       </div>
 
       <div class="row">
@@ -217,7 +211,7 @@
     </div>
 
     <div class="footer-note">
-      <strong>Voice Setup Note:</strong> This application uses your browser's built-in speech recognition and text-to-speech audio. When you click start, allow microphone permissions when prompted so you can speak directly to the AI agent out loud.
+      <strong>Tip:</strong> Ensure you are running this file via a local server (like Live Server in VS Code) or hosted online so microphone permissions can activate correctly.
     </div>
   </div>
 
@@ -246,18 +240,16 @@
       <div>
         <div class="transcript" id="transcript"></div>
 
-        <!-- LIVE VOICE INTERACTION CONTAINER -->
         <div class="voice-box">
-          <div class="mic-status" id="micStatus">AI Agent is speaking... please listen.</div>
-          <div class="live-transcript" id="liveTranscript">"Listening to your voice..."</div>
+          <div class="mic-status" id="micStatus">AI Agent is speaking...</div>
+          <div class="live-transcript" id="liveTranscript">Voice status: Ready</div>
           <div class="voice-controls">
-            <button class="btn" id="micToggleBtn" disabled>Listening...</button>
             <button class="btn secondary" id="repeatAudioBtn">Repeat Agent Voice</button>
+            <button class="btn secondary" id="toggleMicBtn" style="display:none;">Enable Mic Listening</button>
           </div>
         </div>
 
-        <!-- Fallback option buttons if speech recognition is tricky -->
-        <div style="font-size: 11.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">Or click a suggested response if speech isn't catching:</div>
+        <div style="font-size: 11.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">Select a response to guide the call:</div>
         <div class="options" id="options"></div>
 
         <div class="call-controls">
@@ -292,7 +284,7 @@ const state = {
 const el = id => document.getElementById(id);
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  window.speechSynthesis.cancel(); // Stop talking if switching screens
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
   el(id).classList.add('active');
 }
 
@@ -301,9 +293,7 @@ function goalPhraseAsk(){
   if(state.goal === 'info') return "Could I grab your direct email or extension to send details straight over?";
   return "How about Thursday at 10am — I can have our rep swing by for a quick 20-minute walkthrough?";
 }
-function goalPhraseVague(){
-  return "Whenever is convenient for you, honestly.";
-}
+function goalPhraseVague(){ return "Whenever is convenient for you, honestly."; }
 function goalPhraseConfirm(){
   if(state.goal === 'callback') return "Alright, Thursday 10am. Talk then.";
   if(state.goal === 'info') return "It's ops at the business dot com. Take care.";
@@ -426,7 +416,7 @@ function buildStory(){
 let story = null;
 let currentNodeId = 'gk_open';
 let recognition = null;
-let isListening = false;
+let micEnabled = false;
 
 function resolveField(node, key){
   return typeof node[key] === 'function' ? node[key]() : node[key];
@@ -448,11 +438,10 @@ function pushMe(text){
   const wrap = document.createElement('div');
   wrap.className = 'msg me';
   const whoEl = document.createElement('div');
-  whoEl.className = 'who'; whoEl.textContent = 'You (Voice)';
+  whoEl.className = 'who'; whoEl.textContent = 'You';
   const body = document.createElement('div');
   body.textContent = text;
-  wrap.appendChild(wrapOpts => wrapOpts); // standard append
-  wrap.appendChild(body);
+  wrap.appendChild(whoEl); wrap.appendChild(body);
   el('transcript').appendChild(wrap);
   el('transcript').scrollTop = el('transcript').scrollHeight;
 }
@@ -484,7 +473,6 @@ function updateDirectory(newStage){
   state.stage = newStage;
 }
 
-// Speak text out loud using browser Text-to-Speech
 function speakAgentText(text, callback){
   if (!('speechSynthesis' in window)) {
     if(callback) callback();
@@ -493,14 +481,10 @@ function speakAgentText(text, callback){
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 1.05;
-  utterance.pitch = currentNodeId.startsWith('gk_') ? 1.1 : 0.95; // Slight voice variance for receptionist vs managers
+  utterance.pitch = currentNodeId.startsWith('gk_') ? 1.1 : 0.95;
   
-  utterance.onend = () => {
-    if(callback) callback();
-  };
-  utterance.onerror = () => {
-    if(callback) callback();
-  };
+  utterance.onend = () => { if(callback) callback(); };
+  utterance.onerror = () => { if(callback) callback(); };
 
   window.speechSynthesis.speak(utterance);
 }
@@ -513,15 +497,11 @@ function renderNode(){
   pushMsg(speaker, node.text);
   updateDirectory(stage);
 
-  // Read out loud
   el('micStatus').textContent = `${speaker} is speaking...`;
-  el('micToggleBtn').disabled = true;
-  el('micToggleBtn').textContent = "Agent Speaking...";
 
   speakAgentText(node.text, () => {
     if(node.options.length === 0){
       el('micStatus').textContent = "Call finished.";
-      el('micToggleBtn').textContent = "Call Ended";
       el('options').innerHTML = '';
       const doneBtn = document.createElement('button');
       doneBtn.className = 'btn';
@@ -531,14 +511,12 @@ function renderNode(){
       return;
     }
 
-    // Ready for user voice input
-    el('micStatus').textContent = "Your turn! Speak into your mic or click an option below:";
-    el('micToggleBtn').disabled = false;
-    el('micToggleBtn').textContent = "🎤 Listening for Your Voice...";
-    startListening(node.options);
+    el('micStatus').textContent = "Your turn! Click your response below:";
+    if(micEnabled && recognition){
+      try { recognition.start(); } catch(e){}
+    }
   });
 
-  // Render clickable options as a fallback / helper reference
   const optsWrap = el('options');
   optsWrap.innerHTML = '';
   node.options.forEach((opt) => {
@@ -546,78 +524,50 @@ function renderNode(){
     btn.className = 'option-btn';
     btn.textContent = "↳ " + opt.label;
     btn.addEventListener('click', () => {
-      stopListening();
-      window.speechSynthesis.cancel();
+      if(recognition) { try{ recognition.stop(); }catch(e){} }
+      if('speechSynthesis' in window) window.speechSynthesis.cancel();
       choose(opt);
     });
     optsWrap.appendChild(btn);
   });
 }
 
-// Setup Speech Recognition
-function initSpeechRecognition(){
+function initSpeechRecognitionSession(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    el('liveTranscript').textContent = "Speech recognition not supported in this browser. Use buttons below.";
+    el('liveTranscript').textContent = "Speech recognition unavailable in this browser. Use buttons.";
     return;
   }
-  recognition = new SpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
+  try {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
 
-  recognition.onresult = (event) => {
-    let interim = '';
-    let final = '';
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
-      if (event.results[i].isFinal) {
-        final += event.results[i][0].transcript;
-      } else {
-        interim += event.results[i][0].transcript;
+    recognition.onresult = (event) => {
+      let final = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) final += event.results[i][0].transcript;
       }
-    }
-    if(interim) el('liveTranscript').textContent = `Hearing: "${interim}"`;
-    if(final){
-      el('liveTranscript').textContent = `You said: "${final}"`;
-      matchSpokenInput(final);
-    }
-  };
-
-  recognition.onerror = () => {
-    if(isListening) {
-      try { recognition.start(); } catch(e){}
-    }
-  };
-
-  recognition.onend = () => {
-    if(isListening) {
-      try { recognition.start(); } catch(e){}
-    }
-  };
-}
-
-function startListening(options){
-  if(!recognition) return;
-  isListening = true;
-  try { recognition.start(); } catch(e){}
-}
-
-function stopListening(){
-  isListening = false;
-  if(recognition) {
-    try { recognition.stop(); } catch(e){}
+      if(final){
+        el('liveTranscript').textContent = `Heard: "${final}"`;
+        matchSpokenInput(final);
+      }
+    };
+    micEnabled = true;
+    el('toggleMicBtn').style.display = 'inline-block';
+    el('toggleMicBtn').textContent = "Mic Active 🎤";
+  } catch(e) {
+    el('liveTranscript').textContent = "Microphone blocked or unavailable.";
   }
 }
 
-// Match speech or fallback to closest option
 function matchSpokenInput(spokenText){
-  stopListening();
+  if(recognition) { try{ recognition.stop(); }catch(e){} }
   const node = story[currentNodeId];
-  // Simple matching: pick the first option or match keyword, default to option A or best match
   let chosenOpt = node.options[0];
-  
-  // If multiple options, check for keyword overlap
   const lowerSpoken = spokenText.toLowerCase();
+  
   for(let opt of node.options){
     const words = opt.label.toLowerCase().split(' ');
     let matches = words.filter(w => w.length > 3 && lowerSpoken.includes(w)).length;
@@ -627,7 +577,7 @@ function matchSpokenInput(spokenText){
     }
   }
 
-  pushMe(spokenText + ` (Matched choice)`);
+  pushMe(spokenText);
   Object.keys(chosenOpt.delta || {}).forEach(k => { state.scores[k] += chosenOpt.delta[k]; });
   if(chosenOpt.note) state.path.push(chosenOpt.note);
   currentNodeId = chosenOpt.next;
@@ -643,7 +593,7 @@ function choose(opt){
 }
 
 function startCall(){
-  state.reasonText = el('reasonText').value.trim() || "Hi, I work with a facility maintenance and cleaning company, and wanted to see who handles that for your building.";
+  state.reasonText = el('reasonText').value.trim() || "Hi, I work with a facility maintenance company.";
   state.targetBiz = el('targetBiz').value.trim();
   state.difficulty = parseInt(el('difficulty').value, 10);
   state.goal = el('goal').value;
@@ -665,15 +615,15 @@ function startCall(){
 function clamp(n){ return Math.max(0, Math.min(100, Math.round(n))); }
 
 function showFeedback(outcome){
-  stopListening();
-  window.speechSynthesis.cancel();
+  if(recognition) { try{ recognition.stop(); }catch(e){} }
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
   const s = state.scores;
   Object.keys(s).forEach(k => s[k] = clamp(s[k]));
   const overall = clamp((s.rapport + s.gatekeeper_handling + s.objection_handling + s.ask_clarity + s.close) / 5);
   const outcomeLabel = outcome === 'booked' ? 'Goal Secured' : 'Call Ended — No Goal';
 
   let tips = state.path.filter(Boolean);
-  if(tips.length === 0) tips = ["Clean call run — try increasing the difficulty level to test your handling skills."];
+  if(tips.length === 0) tips = ["Solid call run!"];
   tips = tips.slice(-4);
 
   el('feedbackContent').innerHTML = `
@@ -696,13 +646,18 @@ function showFeedback(outcome){
 
 el('startCallBtn').addEventListener('click', () => {
   startCall();
-  initSpeechRecognition();
+  initSpeechRecognitionSession();
 });
-el('restartBtn').addEventListener('click', () => { stopListening(); showScreen('screen-setup'); });
+el('restartBtn').addEventListener('click', () => { if(recognition)recognition.stop(); showScreen('screen-setup'); });
 el('retryBtn').addEventListener('click', () => showScreen('screen-setup'));
 el('repeatAudioBtn').addEventListener('click', () => {
   const node = story[currentNodeId];
   if(node) speakAgentText(node.text);
+});
+el('toggleMicBtn').addEventListener('click', () => {
+  micEnabled = !micEnabled;
+  el('toggleMicBtn').textContent = micEnabled ? "Mic Active 🎤" : "Mic Muted 🔇";
+  if(!micEnabled && recognition) recognition.stop();
 });
 </script>
 </body>
