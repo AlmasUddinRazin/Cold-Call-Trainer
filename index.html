@@ -40,9 +40,8 @@
   .mono{ font-family: 'Space Mono', monospace; }
   .app{ max-width: 1040px; margin: 0 auto; padding: 28px 20px 60px; }
 
-  /* ---------- Header / lobby signage ---------- */
   .signage{
-    display:flex; align-items:baseline; justify-content:space-between;
+    display:flex; align-items:baseline; justify-content:space-between; flex-wrap: wrap; gap: 8px;
     border-bottom: 2px solid var(--gold-dim);
     padding-bottom: 14px; margin-bottom: 28px;
   }
@@ -50,11 +49,9 @@
   .signage h1 span{ color: var(--gold); }
   .signage .tag{ font-size: 12px; color: var(--text-dim); letter-spacing: 0.14em; text-transform: uppercase; }
 
-  /* ---------- Screens ---------- */
   .screen{ display:none; }
   .screen.active{ display:block; }
 
-  /* ---------- Setup card ---------- */
   .card{
     background: var(--panel);
     border: 1px solid var(--line);
@@ -67,11 +64,11 @@
     color: var(--gold); margin-bottom: 7px; font-weight: 600;
   }
   .field .hint{ font-size: 12.5px; color: var(--text-dim); margin-top: 5px; line-height:1.4; }
-  input[type=text], input[type=password], textarea, select{
+  input[type=text], textarea, select{
     width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text);
     padding: 11px 12px; border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: 14.5px;
   }
-  textarea{ resize: vertical; min-height: 64px; }
+  textarea{ resize: vertical; min-height: 56px; }
   input:focus, textarea:focus, select:focus{ outline: 2px solid var(--gold); outline-offset: 1px; }
   .row{ display:flex; gap:16px; flex-wrap: wrap; }
   .row .field{ flex: 1 1 220px; }
@@ -88,9 +85,7 @@
   .btn.secondary:hover{ background: rgba(217,164,65,0.1); }
   .btn.danger{ background: transparent; color: var(--rose); border-color: var(--rose); }
   .btn.danger:hover{ background: rgba(193,102,107,0.12); }
-  .btn:disabled{ opacity: 0.45; cursor: not-allowed; }
 
-  /* ---------- Directory board (signature element) ---------- */
   .directory{
     background: linear-gradient(180deg, #0D1B23, #0A151B);
     border: 1px solid var(--line);
@@ -120,26 +115,30 @@
   .floor.blocked .dot{ background: var(--rose); box-shadow: 0 0 8px 2px rgba(193,102,107,0.5); }
   .floor.blocked{ color: var(--rose); }
 
-  /* ---------- Call transcript ---------- */
   .call-wrap{ display:grid; grid-template-columns: 230px 1fr; gap: 20px; align-items: start; }
   @media (max-width: 720px){ .call-wrap{ grid-template-columns: 1fr; } }
 
   .transcript{
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-    height: 440px; overflow-y: auto; padding: 18px; display:flex; flex-direction: column; gap: 14px;
+    height: 380px; overflow-y: auto; padding: 18px; display:flex; flex-direction: column; gap: 14px; margin-bottom: 16px;
   }
-  .msg{ max-width: 82%; padding: 10px 13px; border-radius: var(--radius); font-size: 14.5px; line-height:1.5; }
+  .msg{ max-width: 88%; padding: 10px 13px; border-radius: var(--radius); font-size: 14.5px; line-height:1.5; }
   .msg.them{ background: var(--panel-raised); align-self: flex-start; border-left: 2px solid var(--gold-dim); }
   .msg.me{ background: rgba(217,164,65,0.14); align-self: flex-end; border-right: 2px solid var(--gold); }
   .msg .who{ font-family:'Space Mono', monospace; font-size: 10.5px; color: var(--text-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
-  .msg.typing{ color: var(--text-dim); font-style: italic; }
 
-  .composer{ display:flex; gap: 10px; margin-top: 14px; }
-  .composer textarea{ flex:1; min-height: 50px; }
-  .call-controls{ display:flex; justify-content: space-between; align-items:center; margin-top: 12px; }
+  .options{ display:flex; flex-direction: column; gap: 10px; }
+  .option-btn{
+    text-align: left; background: var(--panel-raised); border: 1px solid var(--line); color: var(--text);
+    padding: 12px 14px; border-radius: var(--radius); font-size: 14px; cursor: pointer; line-height: 1.4;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .option-btn:hover{ border-color: var(--gold); background: rgba(217,164,65,0.08); }
+  .option-btn .opt-letter{ color: var(--gold); font-family:'Space Mono', monospace; margin-right: 8px; }
+
+  .call-controls{ display:flex; justify-content: space-between; align-items:center; margin-top: 14px; }
   .status-line{ font-size: 12.5px; color: var(--text-dim); font-family:'Space Mono', monospace; }
 
-  /* ---------- Feedback ---------- */
   .score-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 14px; margin: 18px 0 22px; }
   .score-item{ background: var(--panel-raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
   .score-item .label{ font-size: 11.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
@@ -152,8 +151,6 @@
   .tips li:last-child{ border-bottom: none; }
   .tips li::before{ content:"—"; position:absolute; left:0; color: var(--gold); }
 
-  .error-banner{ background: rgba(193,102,107,0.14); border: 1px solid var(--rose); color: var(--rose); padding: 12px 14px; border-radius: var(--radius); font-size: 13.5px; margin-bottom: 16px; }
-
   .footer-note{ margin-top: 34px; font-size: 12px; color: var(--text-dim); border-top: 1px solid var(--line); padding-top: 14px; line-height: 1.6;}
   .actions{ display:flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
 </style>
@@ -163,22 +160,16 @@
 
   <div class="signage">
     <h1>The Call <span>Sheet</span></h1>
-    <div class="tag">Gatekeeper → GM → Maintenance · Booking Drill</div>
+    <div class="tag">AI Voice Agent Simulator · Gatekeeper → GM / Maintenance Drill</div>
   </div>
 
   <!-- SETUP SCREEN -->
   <div class="screen active" id="screen-setup">
     <div class="card">
       <div class="field">
-        <label>Anthropic API Key</label>
-        <input type="password" id="apiKey" placeholder="sk-ant-...">
-        <div class="hint">Used only in your browser, for this session, to call Claude directly. It is never saved to disk or sent anywhere but api.anthropic.com. Re-enter it each time you open this page.</div>
-      </div>
-
-      <div class="field">
-        <label>What you're selling / representing</label>
-        <textarea id="pitchContext" placeholder="e.g. Commercial cleaning & facility maintenance contracts — we handle janitorial staffing, floor care, and building upkeep for mid-size offices.">Commercial cleaning and facility maintenance contracts — janitorial staffing, floor care, and general building upkeep for mid-size offices and commercial spaces.</textarea>
-        <div class="hint">This is the business you're calling on behalf of. Be as specific as you can — the AI will build the target company and its objections around this.</div>
+        <label>Your calling reason (one line)</label>
+        <textarea id="reasonText">Hi, this is Razin — I work with a facility maintenance and cleaning company, and I wanted to see who handles that for your building.</textarea>
+        <div class="hint">This is what you'll say when the script gives you the option to state your reason directly. Edit it to match your actual pitch.</div>
       </div>
 
       <div class="row">
@@ -189,9 +180,9 @@
         <div class="field">
           <label>Gatekeeper difficulty</label>
           <select id="difficulty">
-            <option value="easy">Easy — friendly receptionist</option>
-            <option value="medium" selected>Medium — busy, mildly guarded</option>
-            <option value="hard">Hard — trained to screen out sales calls</option>
+            <option value="0">Easy — friendly receptionist</option>
+            <option value="1" selected>Medium — busy, mildly guarded</option>
+            <option value="2">Hard — trained to screen out sales calls</option>
           </select>
         </div>
       </div>
@@ -205,11 +196,11 @@
         </select>
       </div>
 
-      <button class="btn" id="startCallBtn">Start Mock Call</button>
+      <button class="btn" id="startCallBtn">Start AI Voice Agent Mock Call</button>
     </div>
 
     <div class="footer-note">
-      Flow: you'll open with the gatekeeper at the front desk. Get past them and you're transferred to the General Manager if one exists — if the AI decides this business runs without a GM on site, you'll be routed to whoever handles maintenance/facilities instead. Push for your goal before you hang up. When you end the call, you get a scored breakdown.
+      Fully offline — no API key, no account, no cost. You are interacting with a simulated AI voice agent engine designed to test your front-desk routing, objection-handling, and meeting booking conversion rate. Get past the front desk and you'll be dynamically routed to either the General Manager or the Maintenance Lead.
     </div>
   </div>
 
@@ -220,37 +211,26 @@
         <div class="directory">
           <div class="dtitle">Building Directory</div>
           <div class="floor" id="floor-gatekeeper" data-stage="gatekeeper">
-            <div class="dot"></div>
-            <div class="fname">Front Desk</div>
-            <div class="fcode">LOBBY</div>
+            <div class="dot"></div><div class="fname">Front Desk</div><div class="fcode">LOBBY</div>
           </div>
           <div class="floor" id="floor-gm" data-stage="gm">
-            <div class="dot"></div>
-            <div class="fname">General Manager</div>
-            <div class="fcode">FL. 2</div>
+            <div class="dot"></div><div class="fname">General Manager</div><div class="fcode">FL. 2</div>
           </div>
           <div class="floor" id="floor-maintenance" data-stage="maintenance">
-            <div class="dot"></div>
-            <div class="fname">Maintenance Lead</div>
-            <div class="fcode">B1</div>
+            <div class="dot"></div><div class="fname">Maintenance Lead</div><div class="fcode">B1</div>
           </div>
           <div class="floor" id="floor-booked" data-stage="booked">
-            <div class="dot"></div>
-            <div class="fname">Appointment</div>
-            <div class="fcode">GOAL</div>
+            <div class="dot"></div><div class="fname">Appointment</div><div class="fcode">GOAL</div>
           </div>
         </div>
-        <button class="btn danger" id="endCallBtn" style="width:100%;">End Call</button>
+        <button class="btn danger" id="restartBtn" style="width:100%;">Restart Setup</button>
       </div>
 
       <div>
         <div class="transcript" id="transcript"></div>
-        <div class="composer">
-          <textarea id="userLine" placeholder="Type what you say next on the call..."></textarea>
-          <button class="btn" id="sendBtn">Send</button>
-        </div>
+        <div class="options" id="options"></div>
         <div class="call-controls">
-          <div class="status-line" id="statusLine">Ringing...</div>
+          <div class="status-line" id="statusLine">AI Voice Agent Connected</div>
         </div>
       </div>
     </div>
@@ -267,287 +247,301 @@
 </div>
 
 <script>
-const MODEL = "claude-sonnet-4-6";
-
 const state = {
-  apiKey: "",
-  pitchContext: "",
+  reasonText: "",
   targetBiz: "",
-  difficulty: "medium",
+  difficulty: 1,
   goal: "appointment",
-  stage: "gatekeeper", // gatekeeper -> gm|maintenance -> booked/blocked
-  transcript: [], // {role: 'user'|'assistant', content}
-  cleared: new Set()
+  hasGM: true,
+  stage: "gatekeeper",
+  path: [],
+  scores: { rapport: 50, gatekeeper_handling: 50, objection_handling: 50, ask_clarity: 50, close: 50 }
 };
 
 const el = id => document.getElementById(id);
-
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   el(id).classList.add('active');
 }
 
-function callDifficultyBrief(d){
-  if(d === 'easy') return "The gatekeeper is friendly, a little chatty, and will transfer fairly readily if the caller is polite and states a clear reason.";
-  if(d === 'hard') return "The gatekeeper is explicitly trained to screen out sales and vendor calls, is terse, and will push back at least twice with real objections (busy, not interested, send an email, no budget) before ever considering a transfer, and may end the call if the caller sounds scripted or pushy.";
-  return "The gatekeeper is moderately busy and mildly guarded — not hostile, but not a pushover. Expect one or two realistic objections before any transfer.";
+function goalPhraseAsk(){
+  if(state.goal === 'callback') return "Could I call you back Thursday at 10am once I've pulled a few numbers together?";
+  if(state.goal === 'info') return "Could I just grab your direct email or extension so I can send details straight over?";
+  return "How about Thursday at 10am — I can have our rep swing by for a quick 20-minute walkthrough?";
+}
+function goalPhraseVague(){
+  if(state.goal === 'callback') return "You could just try me back sometime, honestly.";
+  if(state.goal === 'info') return "You can just find our info online, probably.";
+  return "Whenever's convenient for you, honestly.";
+}
+function goalPhraseConfirm(){
+  if(state.goal === 'callback') return "Alright, Thursday 10am — I'll be by the phone. Talk then.";
+  if(state.goal === 'info') return "It's ops@[thebusiness].com, ask for me directly. Take care.";
+  return "Great, Thursday at 10am — I'll pencil that in. Thanks for calling.";
 }
 
-function goalBrief(g){
-  if(g === 'appointment') return "The caller's objective is to book a confirmed face-to-face appointment (specific day and time) for a field representative to visit in person.";
-  if(g === 'callback') return "The caller's objective is to get a confirmed callback time slot directly with the decision-maker.";
-  return "The caller's objective is to obtain the decision-maker's full name and a direct phone line or extension.";
+function buildStory(){
+  const d = state.difficulty;
+  const pick = arr => arr[d];
+
+  return {
+    gk_open: {
+      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      text: pick([
+        "Hi, thanks for calling — this is Priya at the front desk. How can I help you today?",
+        "Front desk, this is Priya. What can I do for you?",
+        "Front desk. Just so you know, if this is a sales call, we get about twenty of these a day."
+      ]),
+      options: [
+        { label: state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:3}, note: "Leading with a clear, specific reason gets you further than small talk or a vague ask." },
+        { label: "Hey, how's your day going so far?", next: 'gk_smalltalk', delta: {rapport:3}, note: "Small talk builds warmth, but don't forget to land the actual reason for your call quickly." },
+        { label: "Can you just put me through to whoever handles maintenance?", next: 'gk_pushy', delta: {ask_clarity:-1, rapport:-2}, note: "Asking to be transferred before explaining why usually reads as pushy and gets stalled." }
+      ]
+    },
+    gk_smalltalk: {
+      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      text: pick([
+        "Oh, it's going alright, thanks for asking! Busy morning. What's this about?",
+        "It's fine, thanks — hectic, but fine. What's this regarding?",
+        "It's fine. I've got three lines blinking, so what do you need?"
+      ]),
+      options: [
+        { label: state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:2, rapport:2}, note: "Good — you warmed her up first, then got straight to the point." },
+        { label: "Just a quick question about who handles your building's cleaning and maintenance.", next: 'gk_afterReason', delta: {ask_clarity:1, rapport:1}, note: "Clear enough, though naming your actual company earlier builds more trust." }
+      ]
+    },
+    gk_pushy: {
+      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      text: "I can't just transfer you without knowing what it's about — we get a lot of cold calls here.",
+      options: [
+        { label: "Fair enough — " + state.reasonText, next: 'gk_afterReason', delta: {ask_clarity:1, objection_handling:2, rapport:1}, note: "Recovering with a real reason after being pushy is fine — just try to lead with it next time." },
+        { label: "It'll only take two minutes of their time, I promise.", next: 'gk_afterReason', delta: {ask_clarity:-1, objection_handling:-1}, note: "Repeating the ask without answering her question tends to burn goodwill fast." }
+      ]
+    },
+    gk_afterReason: {
+      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      text: pick([
+        "Oh okay — actually I think we did get something about that before. Let me see who's free.",
+        "Hm, okay. We already work with a cleaning company though, so I'm not sure they'll want to talk.",
+        "We've got a vendor for that already, and honestly most people just email a proposal instead of calling."
+      ]),
+      options: d === 0
+        ? [ { label: "Great, thank you.", next: 'gk_transfer_check', delta: {}, note: "Easy gatekeepers don't need much convincing — but you'll face tougher ones, so keep sharpening the pitch." } ]
+        : [
+            { label: "Totally understandable — most of our clients had a vendor too before switching. Could I get two minutes with whoever manages that, just to compare?", next: 'gk_transfer_check', delta: {objection_handling:3, ask_clarity:1}, note: "Acknowledging the objection before making a small, specific ask is exactly the right move." },
+            { label: "That's okay, we can definitely beat their pricing.", next: 'gk_transfer_check', delta: {objection_handling:-1}, note: "Claiming to beat pricing you haven't seen sounds like a generic sales line — it can work, but it's weak." },
+            { label: "No worries, I'll just send an email then.", next: 'gk_blocked_soft', delta: {objection_handling:-2, close:-2}, note: "Backing off the phone call entirely when you were this close usually means losing the lead." }
+          ]
+    },
+    gk_transfer_check: {
+      speaker: 'Front Desk (AI Agent)', stage: 'gatekeeper',
+      text: state.hasGM
+        ? "One sec, let me see if the GM is free to talk..."
+        : "We don't really have an on-site GM — let me grab our facilities lead, he handles all of that.",
+      options: [ { label: "Continue", next: state.hasGM ? 'gm_open' : 'maint_open', delta: {}, note: null } ]
+    },
+    gm_open: {
+      speaker: 'General Manager (AI Agent)', stage: 'gm',
+      text: "This is Rashed, I run this office — Priya said you had something about cleaning and maintenance?",
+      options: [
+        { label: state.reasonText + " I wanted to see if it'd be worth 15 minutes to walk through what we could offer for your building.", next: 'decision_objection', delta: {ask_clarity:3, rapport:1}, note: "Restating your reason and making a specific, time-bound ask is a strong opener with a decision-maker." },
+        { label: "Yeah, just wanted to see if you're happy with your current cleaning setup.", next: 'decision_objection', delta: {ask_clarity:1, rapport:2}, note: "Friendly, but a bit soft — decision-makers usually respond better to a concrete reason for the call." },
+        { label: "We're the best facility maintenance company in the area, you should really switch to us.", next: 'decision_objection', delta: {ask_clarity:-2, rapport:-2}, note: "Unsupported superlatives like 'the best' tend to trigger skepticism instead of interest." }
+      ]
+    },
+    maint_open: {
+      speaker: 'Maintenance Lead (AI Agent)', stage: 'maintenance',
+      text: "Hey, this is Kamal, I handle maintenance and building upkeep here — what's up?",
+      options: [
+        { label: state.reasonText + " I wanted to see if it'd be worth 15 minutes to walk through what we could offer for your building.", next: 'decision_objection', delta: {ask_clarity:3, rapport:1}, note: "Restating your reason and making a specific, time-bound ask is a strong opener with a decision-maker." },
+        { label: "Yeah, just wanted to see if you're happy with your current cleaning setup.", next: 'decision_objection', delta: {ask_clarity:1, rapport:2}, note: "Friendly, but a bit soft — decision-makers usually respond better to a concrete reason for the call." },
+        { label: "We're the best facility maintenance company in the area, you should really switch to us.", next: 'decision_objection', delta: {ask_clarity:-2, rapport:-2}, note: "Unsupported superlatives like 'the best' tend to trigger skepticism instead of interest." }
+      ]
+    },
+    decision_objection: {
+      speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: () => state.hasGM ? 'gm' : 'maintenance',
+      text: pick([
+        "Sounds interesting, though I'd want to know it's not going to cost more than what we're doing now.",
+        "We're locked into a contract with our current provider until next year though.",
+        "Honestly we've had three vendors try to pitch us this quarter. What makes you different?"
+      ]),
+      options: [
+        { label: "Understood — even if you're not ready to switch, a lot of clients just have us do a free walkthrough now so the comparison's ready when the contract's up. Could we grab 20 minutes on-site this week?", next: 'booking_offer', delta: {objection_handling:3, close:2}, note: "Reframing the ask around 'no pressure to switch yet' is a great way to get a low-friction yes." },
+        { label: "We're cheaper and more reliable, trust me.", next: 'booking_offer', delta: {objection_handling:-1, close:-1}, note: "'Trust me' claims without evidence rarely move a skeptical decision-maker." },
+        { label: "Oh okay, no worries, I'll let you go then.", next: 'blocked_business', delta: {objection_handling:-2, close:-3}, note: "Folding at the first objection from a decision-maker usually ends the call for good." }
+      ]
+    },
+    booking_offer: {
+      speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: () => state.hasGM ? 'gm' : 'maintenance',
+      text: "Alright, what did you have in mind?",
+      options: [
+        { label: goalPhraseAsk(), next: 'booked_success', delta: {close:4, ask_clarity:2}, note: "Proposing a specific day and time is what actually gets things on a calendar." },
+        { label: goalPhraseVague(), next: 'booking_soft', delta: {close:-1, ask_clarity:-1}, note: "Leaving the timing open-ended makes it easy for the other side to never follow up." },
+        { label: "I really think you should just say yes now, this offer's only good today.", next: 'blocked_business', delta: {close:-3, rapport:-3}, note: "Artificial urgency on a first call usually reads as pressure, not persuasion." }
+      ]
+    },
+    booking_soft: {
+      speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: () => state.hasGM ? 'gm' : 'maintenance',
+      text: "Let's just say sometime Thursday afternoon.",
+      options: [
+        { label: "Great — let's lock in 2pm specifically so I can have my rep plan the route.", next: 'booked_success', delta: {close:2, ask_clarity:2}, note: "Nice recovery — pinning a loose window down to an exact time closes the loop properly." },
+        { label: "Okay, sometime Thursday then, I'll follow up.", next: 'booked_soft_end', delta: {close:0}, note: "This technically 'books' something, but a vague window is easy to lose to a reschedule or a no-show." }
+      ]
+    },
+    booked_success: { speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: 'booked', text: goalPhraseConfirm(), outcome: 'booked', options: [] },
+    booked_soft_end: { speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: 'booked', text: "Sure, sometime Thursday — talk then.", outcome: 'booked', options: [] },
+    blocked_business: { speaker: () => state.hasGM ? 'General Manager (AI Agent)' : 'Maintenance Lead (AI Agent)', stage: 'blocked', text: "I appreciate the call, but we're all set — take care.", outcome: 'blocked', options: [] },
+    gk_blocked_soft: { speaker: 'Front Desk (AI Agent)', stage: 'blocked', text: "No problem, I'll let them know you called. Have a good one.", outcome: 'blocked', options: [] }
+  };
 }
 
-function buildSystemPrompt(){
-  return `You are running a realistic cold-call roleplay simulator for sales training. You play EVERY character the caller reaches on this call: the front-desk gatekeeper, and then either a General Manager or a Maintenance/Facilities Lead, depending on what's realistic for this business.
+let story = null;
+let currentNodeId = 'gk_open';
 
-BUSINESS BEING CALLED (target): ${state.targetBiz}
-WHAT THE CALLER IS SELLING: ${state.pitchContext}
-GATEKEEPER DIFFICULTY: ${callDifficultyBrief(state.difficulty)}
-CALLER'S GOAL: ${goalBrief(state.goal)}
-
-RULES:
-- Stay fully in character as whoever is currently speaking. Never break character, never coach the caller mid-call, never comment on their technique during the call itself.
-- Keep each reply short and natural, like real phone dialogue — 1 to 4 sentences. No stage directions, no asterisks, no narration.
-- Start every call at the front desk (gatekeeper stage). Decide early and consistently whether this business has an on-site General Manager. If it does not, the gatekeeper should route toward the maintenance/facilities lead instead — stay consistent with that decision for the whole call.
-- Only transfer or hand off the call when the caller has actually earned it through what they said (clear reason for calling, some rapport, handling an objection reasonably) — don't transfer just because they asked once.
-- If the caller is vague, robotic, overly pushy, or gives no real reason for the call, push back realistically in character rather than complying.
-- If the caller successfully secures the stated goal (a specific booked appointment day/time, a confirmed callback slot, or a name plus direct line — matching the caller's goal above), have the character explicitly confirm it in the dialogue.
-- If the caller is rejected outright (gatekeeper won't budge after real effort, or the other party declines firmly), have the character end the call clearly.
-
-OUTPUT FORMAT — every single reply must end with exactly one machine-readable tag on its own final line, chosen from:
-[[STAGE:GATEKEEPER]] — still with the gatekeeper, not yet transferred
-[[STAGE:GM]] — now speaking with the General Manager
-[[STAGE:MAINTENANCE]] — now speaking with the Maintenance/Facilities Lead
-[[STAGE:BOOKED]] — the caller's goal was just confirmed/secured
-[[STAGE:BLOCKED]] — the call just ended in rejection/hang-up
-
-Do not explain the tag, just append it after your dialogue line.`;
+function resolveField(node, key){
+  return typeof node[key] === 'function' ? node[key]() : node[key];
 }
 
-function pushMsg(role, content, displayOverride){
-  state.transcript.push({role, content});
+function pushMsg(who, text){
   const wrap = document.createElement('div');
-  wrap.className = 'msg ' + (role === 'user' ? 'me' : 'them');
-  const who = document.createElement('div');
-  who.className = 'who';
-  who.textContent = role === 'user' ? 'You' : stageLabel();
+  wrap.className = 'msg them';
+  const whoEl = document.createElement('div');
+  whoEl.className = 'who'; whoEl.textContent = who;
   const body = document.createElement('div');
-  body.textContent = displayOverride !== undefined ? displayOverride : content;
-  wrap.appendChild(who); wrap.appendChild(body);
+  body.textContent = text;
+  wrap.appendChild(whoEl); wrap.appendChild(body);
+  el('transcript').appendChild(wrap);
+  el('transcript').scrollTop = el('transcript').scrollHeight;
+}
+function pushMe(text){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg me';
+  const whoEl = document.createElement('div');
+  whoEl.className = 'who'; whoEl.textContent = 'You';
+  const body = document.createElement('div');
+  body.textContent = text;
+  wrap.appendChild(whoEl); wrap.appendChild(body);
   el('transcript').appendChild(wrap);
   el('transcript').scrollTop = el('transcript').scrollHeight;
 }
 
-function stageLabel(){
-  if(state.stage === 'gatekeeper') return 'Front Desk';
-  if(state.stage === 'gm') return 'General Manager';
-  if(state.stage === 'maintenance') return 'Maintenance Lead';
-  return 'Caller';
-}
-
 function updateDirectory(newStage){
-  const order = ['gatekeeper','gm','maintenance','booked'];
   document.querySelectorAll('.floor').forEach(f => f.classList.remove('active'));
+  const contactFloor = state.hasGM ? 'floor-gm' : 'floor-maintenance';
 
   if(newStage === 'gatekeeper'){
     el('floor-gatekeeper').classList.add('active');
-  } else if(newStage === 'gm'){
+  } else if(newStage === 'gm' || newStage === 'maintenance'){
     el('floor-gatekeeper').classList.add('cleared');
-    el('floor-gm').classList.add('active');
-  } else if(newStage === 'maintenance'){
-    el('floor-gatekeeper').classList.add('cleared');
-    el('floor-maintenance').classList.add('active');
+    el(contactFloor).classList.add('active');
   } else if(newStage === 'booked'){
     el('floor-gatekeeper').classList.add('cleared');
-    el('floor-gm').classList.add(state.stage === 'gm' ? 'cleared' : '');
-    el('floor-maintenance').classList.add(state.stage === 'maintenance' ? 'cleared' : '');
+    el(contactFloor).classList.add('cleared');
     el('floor-booked').classList.add('cleared');
-    el('statusLine').textContent = 'Goal secured — you can end the call.';
+    el('statusLine').textContent = 'Goal secured.';
   } else if(newStage === 'blocked'){
-    el('floor-' + (state.stage === 'gm' ? 'gm' : state.stage === 'maintenance' ? 'maintenance' : 'gatekeeper')).classList.add('blocked');
-    el('statusLine').textContent = 'Call ended by the other party.';
+    const wasContact = state.stage === 'gm' || state.stage === 'maintenance';
+    if(wasContact){
+      el('floor-gatekeeper').classList.add('cleared');
+      el(contactFloor).classList.add('blocked');
+    } else {
+      el('floor-gatekeeper').classList.add('blocked');
+    }
+    el('statusLine').textContent = 'Call ended.';
   }
   state.stage = newStage;
 }
 
-async function callClaude(messages, systemPrompt, forceJson){
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": state.apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 500,
-      system: systemPrompt,
-      messages: messages
-    })
+function renderNode(){
+  const node = story[currentNodeId];
+  const speaker = resolveField(node, 'speaker');
+  const stage = resolveField(node, 'stage');
+  pushMsg(speaker, node.text);
+  updateDirectory(stage);
+
+  const optsWrap = el('options');
+  optsWrap.innerHTML = '';
+
+  if(node.options.length === 0){
+    el('statusLine').textContent = node.outcome === 'booked' ? 'Call complete — goal secured.' : 'Call complete — ended without the goal.';
+    const doneBtn = document.createElement('button');
+    doneBtn.className = 'btn';
+    doneBtn.textContent = 'See Feedback & Scores';
+    doneBtn.addEventListener('click', () => showFeedback(node.outcome));
+    optsWrap.appendChild(doneBtn);
+    return;
+  }
+
+  const letters = ['A','B','C'];
+  node.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}.</span>${opt.label}`;
+    btn.addEventListener('click', () => choose(opt));
+    optsWrap.appendChild(btn);
   });
-  if(!res.ok){
-    const errText = await res.text();
-    throw new Error(`API error ${res.status}: ${errText}`);
-  }
-  const data = await res.json();
-  const textBlock = data.content.find(b => b.type === 'text');
-  return textBlock ? textBlock.text : '';
 }
 
-function parseStageTag(raw){
-  const match = raw.match(/\[\[STAGE:(GATEKEEPER|GM|MAINTENANCE|BOOKED|BLOCKED)\]\]\s*$/i);
-  let stage = null;
-  let clean = raw;
-  if(match){
-    stage = match[1].toLowerCase();
-    clean = raw.slice(0, match.index).trim();
-  }
-  return { stage, clean };
+function choose(opt){
+  pushMe(opt.label);
+  Object.keys(opt.delta || {}).forEach(k => { state.scores[k] += opt.delta[k]; });
+  if(opt.note) state.path.push(opt.note);
+  currentNodeId = opt.next;
+  renderNode();
 }
 
-async function startCall(){
-  state.apiKey = el('apiKey').value.trim();
-  state.pitchContext = el('pitchContext').value.trim();
+function startCall(){
+  state.reasonText = el('reasonText').value.trim() || "Hi, I work with a facility maintenance and cleaning company, and wanted to see who handles that for your building.";
   state.targetBiz = el('targetBiz').value.trim();
-  state.difficulty = el('difficulty').value;
+  state.difficulty = parseInt(el('difficulty').value, 10);
   state.goal = el('goal').value;
-
-  if(!state.apiKey){
-    alert('Enter your Anthropic API key to start.');
-    return;
-  }
-  if(!state.pitchContext){
-    alert('Describe what you\\'re selling first.');
-    return;
-  }
-
-  state.transcript = [];
+  state.hasGM = Math.random() < 0.5;
   state.stage = 'gatekeeper';
+  state.path = [];
+  state.scores = { rapport: 50, gatekeeper_handling: 50, objection_handling: 50, ask_clarity: 50, close: 50 };
+
+  story = buildStory();
+  currentNodeId = 'gk_open';
+
   el('transcript').innerHTML = '';
   document.querySelectorAll('.floor').forEach(f => f.classList.remove('active','cleared','blocked'));
-  el('floor-gatekeeper').classList.add('active');
-  el('statusLine').textContent = 'Ringing...';
+  el('statusLine').textContent = 'AI Voice Agent Active';
   showScreen('screen-call');
-
-  el('statusLine').textContent = 'Connecting...';
-  try{
-    const systemPrompt = buildSystemPrompt();
-    window.__systemPrompt = systemPrompt;
-    const opening = await callClaude(
-      [{ role: 'user', content: '(The phone is picked up. Begin the call as the front-desk gatekeeper answering the phone.)' }],
-      systemPrompt
-    );
-    const { stage, clean } = parseStageTag(opening);
-    state.transcript.push({role: 'assistant', content: clean});
-    pushMsg('assistant', clean);
-    if(stage) updateDirectory(stage);
-    el('statusLine').textContent = 'Live — say something.';
-  }catch(e){
-    pushMsg('assistant', 'Connection failed: ' + e.message);
-    el('statusLine').textContent = 'Error connecting.';
-  }
+  renderNode();
 }
 
-async function sendLine(){
-  const input = el('userLine');
-  const text = input.value.trim();
-  if(!text) return;
-  input.value = '';
-  pushMsg('user', text);
+function clamp(n){ return Math.max(0, Math.min(100, Math.round(n))); }
 
-  const typing = document.createElement('div');
-  typing.className = 'msg them typing';
-  typing.textContent = stageLabel() + ' is responding...';
-  el('transcript').appendChild(typing);
-  el('transcript').scrollTop = el('transcript').scrollHeight;
-  el('sendBtn').disabled = true;
+function showFeedback(outcome){
+  const s = state.scores;
+  Object.keys(s).forEach(k => s[k] = clamp(s[k]));
+  const overall = clamp((s.rapport + s.gatekeeper_handling + s.objection_handling + s.ask_clarity + s.close) / 5);
+  const outcomeLabel = outcome === 'booked' ? 'Goal Secured' : 'Call Ended — No Goal';
 
-  try{
-    const apiMessages = state.transcript.map(m => ({ role: m.role, content: m.content }));
-    const reply = await callClaude(apiMessages, window.__systemPrompt);
-    typing.remove();
-    const { stage, clean } = parseStageTag(reply);
-    state.transcript.push({role: 'assistant', content: clean});
-    pushMsg('assistant', clean);
-    if(stage) updateDirectory(stage);
-    if(stage === 'blocked' || stage === 'booked'){
-      el('sendBtn').disabled = true;
-      input.disabled = true;
-    } else {
-      el('sendBtn').disabled = false;
-    }
-  }catch(e){
-    typing.remove();
-    pushMsg('assistant', 'Connection error: ' + e.message);
-    el('sendBtn').disabled = false;
-  }
-}
+  let tips = state.path.filter(Boolean);
+  if(tips.length === 0) tips = ["Solid, clean run — try the Hard difficulty next to put your objection handling to a real test."];
+  tips = tips.slice(-4);
 
-async function endCall(){
-  if(state.transcript.filter(m => m.role === 'user').length === 0){
-    showScreen('screen-setup');
-    return;
-  }
-  showScreen('screen-feedback');
-  el('feedbackContent').innerHTML = '<div class="status-line">Scoring the call...</div>';
-
-  const gradingSystem = `You are a blunt, experienced sales trainer grading a cold-call roleplay transcript. The caller was trying to get past a gatekeeper, reach a General Manager (or Maintenance/Facilities Lead if no GM exists), and achieve this goal: ${goalBrief(state.goal)}
-
-Score the caller (not the AI-played characters) on a 0-100 scale for each of these categories:
-- rapport: warmth, tone, and how quickly they built trust
-- gatekeeper_handling: how well they got past or worked with the front desk
-- objection_handling: how well they handled pushback or hesitation
-- ask_clarity: how clear and confident their ask was
-- close: how effectively they moved toward or secured the stated goal
-
-Also give an overall 0-100 score and exactly 4 short, specific, actionable tips (each 1 sentence) referencing what actually happened in this specific transcript — no generic advice.
-
-Respond with ONLY raw JSON, no markdown fences, no preamble, in exactly this shape:
-{"rapport":0,"gatekeeper_handling":0,"objection_handling":0,"ask_clarity":0,"close":0,"overall":0,"outcome":"booked|blocked|incomplete","tips":["...","...","...","..."]}`;
-
-  const transcriptText = state.transcript.map(m => (m.role === 'user' ? 'CALLER: ' : 'CHARACTER: ') + m.content).join('\\n');
-
-  try{
-    const raw = await callClaude(
-      [{ role: 'user', content: 'Transcript:\\n' + transcriptText }],
-      gradingSystem
-    );
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const data = JSON.parse(clean);
-    renderFeedback(data);
-  }catch(e){
-    el('feedbackContent').innerHTML = `<div class="error-banner">Couldn't score this call: ${e.message}</div>`;
-  }
-}
-
-function renderFeedback(data){
-  const outcomeLabel = data.outcome === 'booked' ? 'Goal Secured' : data.outcome === 'blocked' ? 'Call Ended — No Goal' : 'Call Incomplete';
   el('feedbackContent').innerHTML = `
     <div class="overall">
-      <div class="num">${data.overall}</div>
+      <div class="num">${overall}</div>
       <div class="out">${outcomeLabel}</div>
     </div>
     <div class="score-grid">
-      <div class="score-item"><div class="label">Rapport</div><div class="val">${data.rapport}</div></div>
-      <div class="score-item"><div class="label">Gatekeeper Handling</div><div class="val">${data.gatekeeper_handling}</div></div>
-      <div class="score-item"><div class="label">Objection Handling</div><div class="val">${data.objection_handling}</div></div>
-      <div class="score-item"><div class="label">Ask Clarity</div><div class="val">${data.ask_clarity}</div></div>
-      <div class="score-item"><div class="label">Close</div><div class="val">${data.close}</div></div>
+      <div class="score-item"><div class="label">Rapport</div><div class="val">${s.rapport}</div></div>
+      <div class="score-item"><div class="label">Gatekeeper Handling</div><div class="val">${s.gatekeeper_handling}</div></div>
+      <div class="score-item"><div class="label">Objection Handling</div><div class="val">${s.objection_handling}</div></div>
+      <div class="score-item"><div class="label">Ask Clarity</div><div class="val">${s.ask_clarity}</div></div>
+      <div class="score-item"><div class="label">Close</div><div class="val">${s.close}</div></div>
     </div>
-    <h3>Coaching Notes</h3>
-    <ul class="tips">${data.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+    <h3>AI Coach Coaching Notes</h3>
+    <ul class="tips">${tips.map(t => `<li>${t}</li>`).join('')}</ul>
   `;
+  showScreen('screen-feedback');
 }
 
 el('startCallBtn').addEventListener('click', startCall);
-el('sendBtn').addEventListener('click', sendLine);
-el('userLine').addEventListener('keydown', e => {
-  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendLine(); }
-});
-el('endCallBtn').addEventListener('click', endCall);
+el('restartBtn').addEventListener('click', () => showScreen('screen-setup'));
 el('retryBtn').addEventListener('click', () => showScreen('screen-setup'));
 </script>
 </body>
