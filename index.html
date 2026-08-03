@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Call Sheet — Cold Call Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10202B;
+    --panel: #17303E;
+    --panel-raised: #1E3B4C;
+    --line: #2C4A5C;
+    --text: #EDE6DA;
+    --text-dim: #9FB4BE;
+    --gold: #D9A441;
+    --gold-dim: #8A6C2F;
+    --green: #7FB685;
+    --rose: #C1666B;
+    --radius: 3px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(217,164,65,0.06), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(127,182,133,0.05), transparent 40%);
+  }
+  h1,h2,h3,.display{
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .mono{ font-family: 'Space Mono', monospace; }
+  .app{ max-width: 1040px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* ---------- Header / lobby signage ---------- */
+  .signage{
+    display:flex; align-items:baseline; justify-content:space-between;
+    border-bottom: 2px solid var(--gold-dim);
+    padding-bottom: 14px; margin-bottom: 28px;
+  }
+  .signage h1{ font-size: 34px; margin:0; color: var(--text); }
+  .signage h1 span{ color: var(--gold); }
+  .signage .tag{ font-size: 12px; color: var(--text-dim); letter-spacing: 0.14em; text-transform: uppercase; }
+
+  /* ---------- Screens ---------- */
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  /* ---------- Setup card ---------- */
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px 26px 22px;
+  }
+  .field{ margin-bottom: 18px; }
+  .field label{
+    display:block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--gold); margin-bottom: 7px; font-weight: 600;
+  }
+  .field .hint{ font-size: 12.5px; color: var(--text-dim); margin-top: 5px; line-height:1.4; }
+  input[type=text], input[type=password], textarea, select{
+    width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text);
+    padding: 11px 12px; border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: 14.5px;
+  }
+  textarea{ resize: vertical; min-height: 64px; }
+  input:focus, textarea:focus, select:focus{ outline: 2px solid var(--gold); outline-offset: 1px; }
+  .row{ display:flex; gap:16px; flex-wrap: wrap; }
+  .row .field{ flex: 1 1 220px; }
+
+  .btn{
+    font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; font-weight: 700;
+    letter-spacing: 0.06em; font-size: 15px; padding: 12px 22px; border-radius: var(--radius);
+    border: 1px solid var(--gold); background: var(--gold); color: #14232C; cursor: pointer;
+    transition: transform 0.08s ease, background 0.15s ease;
+  }
+  .btn:hover{ background: #E7B863; }
+  .btn:active{ transform: scale(0.98); }
+  .btn.secondary{ background: transparent; color: var(--gold); }
+  .btn.secondary:hover{ background: rgba(217,164,65,0.1); }
+  .btn.danger{ background: transparent; color: var(--rose); border-color: var(--rose); }
+  .btn.danger:hover{ background: rgba(193,102,107,0.12); }
+  .btn:disabled{ opacity: 0.45; cursor: not-allowed; }
+
+  /* ---------- Directory board (signature element) ---------- */
+  .directory{
+    background: linear-gradient(180deg, #0D1B23, #0A151B);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 20px;
+  }
+  .directory .dtitle{ font-size: 11px; color: var(--text-dim); letter-spacing: 0.14em; margin-bottom: 10px; text-transform: uppercase;}
+  .floor{
+    display:flex; align-items:center; gap: 12px; padding: 9px 6px;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+    font-family: 'Space Mono', monospace; font-size: 13.5px; color: var(--text-dim);
+    transition: color 0.3s ease;
+  }
+  .floor:last-child{ border-bottom: none; }
+  .floor .dot{
+    width: 9px; height: 9px; border-radius: 50%; background: #2C4A5C; flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  .floor .fname{ flex: 1; }
+  .floor .fcode{ color: var(--text-dim); font-size: 12px; }
+  .floor.active .dot{ background: var(--gold); box-shadow: 0 0 8px 2px rgba(217,164,65,0.55); }
+  .floor.active{ color: var(--text); }
+  .floor.cleared .dot{ background: var(--green); box-shadow: 0 0 8px 2px rgba(127,182,133,0.5); }
+  .floor.cleared{ color: var(--text); }
+  .floor.blocked .dot{ background: var(--rose); box-shadow: 0 0 8px 2px rgba(193,102,107,0.5); }
+  .floor.blocked{ color: var(--rose); }
+
+  /* ---------- Call transcript ---------- */
+  .call-wrap{ display:grid; grid-template-columns: 230px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 720px){ .call-wrap{ grid-template-columns: 1fr; } }
+
+  .transcript{
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    height: 440px; overflow-y: auto; padding: 18px; display:flex; flex-direction: column; gap: 14px;
+  }
+  .msg{ max-width: 82%; padding: 10px 13px; border-radius: var(--radius); font-size: 14.5px; line-height:1.5; }
+  .msg.them{ background: var(--panel-raised); align-self: flex-start; border-left: 2px solid var(--gold-dim); }
+  .msg.me{ background: rgba(217,164,65,0.14); align-self: flex-end; border-right: 2px solid var(--gold); }
+  .msg .who{ font-family:'Space Mono', monospace; font-size: 10.5px; color: var(--text-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .msg.typing{ color: var(--text-dim); font-style: italic; }
+
+  .composer{ display:flex; gap: 10px; margin-top: 14px; }
+  .composer textarea{ flex:1; min-height: 50px; }
+  .call-controls{ display:flex; justify-content: space-between; align-items:center; margin-top: 12px; }
+  .status-line{ font-size: 12.5px; color: var(--text-dim); font-family:'Space Mono', monospace; }
+
+  /* ---------- Feedback ---------- */
+  .score-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 14px; margin: 18px 0 22px; }
+  .score-item{ background: var(--panel-raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .score-item .label{ font-size: 11.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .score-item .val{ font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: var(--gold); }
+  .overall{ text-align:center; padding: 22px; background: var(--panel-raised); border-radius: var(--radius); border: 1px solid var(--gold-dim); margin-bottom: 20px; }
+  .overall .num{ font-size: 58px; font-family: 'Barlow Condensed'; font-weight: 700; color: var(--gold); line-height:1; }
+  .overall .out{ font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.12em; margin-top:6px;}
+  .tips{ list-style: none; padding:0; margin: 0; }
+  .tips li{ padding: 10px 0 10px 22px; border-bottom: 1px solid var(--line); position: relative; font-size: 14.5px; line-height:1.5;}
+  .tips li:last-child{ border-bottom: none; }
+  .tips li::before{ content:"—"; position:absolute; left:0; color: var(--gold); }
+
+  .error-banner{ background: rgba(193,102,107,0.14); border: 1px solid var(--rose); color: var(--rose); padding: 12px 14px; border-radius: var(--radius); font-size: 13.5px; margin-bottom: 16px; }
+
+  .footer-note{ margin-top: 34px; font-size: 12px; color: var(--text-dim); border-top: 1px solid var(--line); padding-top: 14px; line-height: 1.6;}
+  .actions{ display:flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="signage">
+    <h1>The Call <span>Sheet</span></h1>
+    <div class="tag">Gatekeeper → GM → Maintenance · Booking Drill</div>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div class="screen active" id="screen-setup">
+    <div class="card">
+      <div class="field">
+        <label>Anthropic API Key</label>
+        <input type="password" id="apiKey" placeholder="sk-ant-...">
+        <div class="hint">Used only in your browser, for this session, to call Claude directly. It is never saved to disk or sent anywhere but api.anthropic.com. Re-enter it each time you open this page.</div>
+      </div>
+
+      <div class="field">
+        <label>What you're selling / representing</label>
+        <textarea id="pitchContext" placeholder="e.g. Commercial cleaning & facility maintenance contracts — we handle janitorial staffing, floor care, and building upkeep for mid-size offices.">Commercial cleaning and facility maintenance contracts — janitorial staffing, floor care, and general building upkeep for mid-size offices and commercial spaces.</textarea>
+        <div class="hint">This is the business you're calling on behalf of. Be as specific as you can — the AI will build the target company and its objections around this.</div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Target business type</label>
+          <input type="text" id="targetBiz" value="Mid-size corporate office (150–300 staff)">
+        </div>
+        <div class="field">
+          <label>Gatekeeper difficulty</label>
+          <select id="difficulty">
+            <option value="easy">Easy — friendly receptionist</option>
+            <option value="medium" selected>Medium — busy, mildly guarded</option>
+            <option value="hard">Hard — trained to screen out sales calls</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Your goal for this call</label>
+        <select id="goal">
+          <option value="appointment" selected>Book a face-to-face appointment for your rep</option>
+          <option value="callback">Get a confirmed callback slot with the decision-maker</option>
+          <option value="info">Get the decision-maker's name and direct line</option>
+        </select>
+      </div>
+
+      <button class="btn" id="startCallBtn">Start Mock Call</button>
+    </div>
+
+    <div class="footer-note">
+      Flow: you'll open with the gatekeeper at the front desk. Get past them and you're transferred to the General Manager if one exists — if the AI decides this business runs without a GM on site, you'll be routed to whoever handles maintenance/facilities instead. Push for your goal before you hang up. When you end the call, you get a scored breakdown.
+    </div>
+  </div>
+
+  <!-- CALL SCREEN -->
+  <div class="screen" id="screen-call">
+    <div class="call-wrap">
+      <div>
+        <div class="directory">
+          <div class="dtitle">Building Directory</div>
+          <div class="floor" id="floor-gatekeeper" data-stage="gatekeeper">
+            <div class="dot"></div>
+            <div class="fname">Front Desk</div>
+            <div class="fcode">LOBBY</div>
+          </div>
+          <div class="floor" id="floor-gm" data-stage="gm">
+            <div class="dot"></div>
+            <div class="fname">General Manager</div>
+            <div class="fcode">FL. 2</div>
+          </div>
+          <div class="floor" id="floor-maintenance" data-stage="maintenance">
+            <div class="dot"></div>
+            <div class="fname">Maintenance Lead</div>
+            <div class="fcode">B1</div>
+          </div>
+          <div class="floor" id="floor-booked" data-stage="booked">
+            <div class="dot"></div>
+            <div class="fname">Appointment</div>
+            <div class="fcode">GOAL</div>
+          </div>
+        </div>
+        <button class="btn danger" id="endCallBtn" style="width:100%;">End Call</button>
+      </div>
+
+      <div>
+        <div class="transcript" id="transcript"></div>
+        <div class="composer">
+          <textarea id="userLine" placeholder="Type what you say next on the call..."></textarea>
+          <button class="btn" id="sendBtn">Send</button>
+        </div>
+        <div class="call-controls">
+          <div class="status-line" id="statusLine">Ringing...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK SCREEN -->
+  <div class="screen" id="screen-feedback">
+    <div id="feedbackContent"></div>
+    <div class="actions">
+      <button class="btn" id="retryBtn">Run Another Call</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MODEL = "claude-sonnet-4-6";
+
+const state = {
+  apiKey: "",
+  pitchContext: "",
+  targetBiz: "",
+  difficulty: "medium",
+  goal: "appointment",
+  stage: "gatekeeper", // gatekeeper -> gm|maintenance -> booked/blocked
+  transcript: [], // {role: 'user'|'assistant', content}
+  cleared: new Set()
+};
+
+const el = id => document.getElementById(id);
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  el(id).classList.add('active');
+}
+
+function callDifficultyBrief(d){
+  if(d === 'easy') return "The gatekeeper is friendly, a little chatty, and will transfer fairly readily if the caller is polite and states a clear reason.";
+  if(d === 'hard') return "The gatekeeper is explicitly trained to screen out sales and vendor calls, is terse, and will push back at least twice with real objections (busy, not interested, send an email, no budget) before ever considering a transfer, and may end the call if the caller sounds scripted or pushy.";
+  return "The gatekeeper is moderately busy and mildly guarded — not hostile, but not a pushover. Expect one or two realistic objections before any transfer.";
+}
+
+function goalBrief(g){
+  if(g === 'appointment') return "The caller's objective is to book a confirmed face-to-face appointment (specific day and time) for a field representative to visit in person.";
+  if(g === 'callback') return "The caller's objective is to get a confirmed callback time slot directly with the decision-maker.";
+  return "The caller's objective is to obtain the decision-maker's full name and a direct phone line or extension.";
+}
+
+function buildSystemPrompt(){
+  return `You are running a realistic cold-call roleplay simulator for sales training. You play EVERY character the caller reaches on this call: the front-desk gatekeeper, and then either a General Manager or a Maintenance/Facilities Lead, depending on what's realistic for this business.
+
+BUSINESS BEING CALLED (target): ${state.targetBiz}
+WHAT THE CALLER IS SELLING: ${state.pitchContext}
+GATEKEEPER DIFFICULTY: ${callDifficultyBrief(state.difficulty)}
+CALLER'S GOAL: ${goalBrief(state.goal)}
+
+RULES:
+- Stay fully in character as whoever is currently speaking. Never break character, never coach the caller mid-call, never comment on their technique during the call itself.
+- Keep each reply short and natural, like real phone dialogue — 1 to 4 sentences. No stage directions, no asterisks, no narration.
+- Start every call at the front desk (gatekeeper stage). Decide early and consistently whether this business has an on-site General Manager. If it does not, the gatekeeper should route toward the maintenance/facilities lead instead — stay consistent with that decision for the whole call.
+- Only transfer or hand off the call when the caller has actually earned it through what they said (clear reason for calling, some rapport, handling an objection reasonably) — don't transfer just because they asked once.
+- If the caller is vague, robotic, overly pushy, or gives no real reason for the call, push back realistically in character rather than complying.
+- If the caller successfully secures the stated goal (a specific booked appointment day/time, a confirmed callback slot, or a name plus direct line — matching the caller's goal above), have the character explicitly confirm it in the dialogue.
+- If the caller is rejected outright (gatekeeper won't budge after real effort, or the other party declines firmly), have the character end the call clearly.
+
+OUTPUT FORMAT — every single reply must end with exactly one machine-readable tag on its own final line, chosen from:
+[[STAGE:GATEKEEPER]] — still with the gatekeeper, not yet transferred
+[[STAGE:GM]] — now speaking with the General Manager
+[[STAGE:MAINTENANCE]] — now speaking with the Maintenance/Facilities Lead
+[[STAGE:BOOKED]] — the caller's goal was just confirmed/secured
+[[STAGE:BLOCKED]] — the call just ended in rejection/hang-up
+
+Do not explain the tag, just append it after your dialogue line.`;
+}
+
+function pushMsg(role, content, displayOverride){
+  state.transcript.push({role, content});
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + (role === 'user' ? 'me' : 'them');
+  const who = document.createElement('div');
+  who.className = 'who';
+  who.textContent = role === 'user' ? 'You' : stageLabel();
+  const body = document.createElement('div');
+  body.textContent = displayOverride !== undefined ? displayOverride : content;
+  wrap.appendChild(who); wrap.appendChild(body);
+  el('transcript').appendChild(wrap);
+  el('transcript').scrollTop = el('transcript').scrollHeight;
+}
+
+function stageLabel(){
+  if(state.stage === 'gatekeeper') return 'Front Desk';
+  if(state.stage === 'gm') return 'General Manager';
+  if(state.stage === 'maintenance') return 'Maintenance Lead';
+  return 'Caller';
+}
+
+function updateDirectory(newStage){
+  const order = ['gatekeeper','gm','maintenance','booked'];
+  document.querySelectorAll('.floor').forEach(f => f.classList.remove('active'));
+
+  if(newStage === 'gatekeeper'){
+    el('floor-gatekeeper').classList.add('active');
+  } else if(newStage === 'gm'){
+    el('floor-gatekeeper').classList.add('cleared');
+    el('floor-gm').classList.add('active');
+  } else if(newStage === 'maintenance'){
+    el('floor-gatekeeper').classList.add('cleared');
+    el('floor-maintenance').classList.add('active');
+  } else if(newStage === 'booked'){
+    el('floor-gatekeeper').classList.add('cleared');
+    el('floor-gm').classList.add(state.stage === 'gm' ? 'cleared' : '');
+    el('floor-maintenance').classList.add(state.stage === 'maintenance' ? 'cleared' : '');
+    el('floor-booked').classList.add('cleared');
+    el('statusLine').textContent = 'Goal secured — you can end the call.';
+  } else if(newStage === 'blocked'){
+    el('floor-' + (state.stage === 'gm' ? 'gm' : state.stage === 'maintenance' ? 'maintenance' : 'gatekeeper')).classList.add('blocked');
+    el('statusLine').textContent = 'Call ended by the other party.';
+  }
+  state.stage = newStage;
+}
+
+async function callClaude(messages, systemPrompt, forceJson){
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": state.apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 500,
+      system: systemPrompt,
+      messages: messages
+    })
+  });
+  if(!res.ok){
+    const errText = await res.text();
+    throw new Error(`API error ${res.status}: ${errText}`);
+  }
+  const data = await res.json();
+  const textBlock = data.content.find(b => b.type === 'text');
+  return textBlock ? textBlock.text : '';
+}
+
+function parseStageTag(raw){
+  const match = raw.match(/\[\[STAGE:(GATEKEEPER|GM|MAINTENANCE|BOOKED|BLOCKED)\]\]\s*$/i);
+  let stage = null;
+  let clean = raw;
+  if(match){
+    stage = match[1].toLowerCase();
+    clean = raw.slice(0, match.index).trim();
+  }
+  return { stage, clean };
+}
+
+async function startCall(){
+  state.apiKey = el('apiKey').value.trim();
+  state.pitchContext = el('pitchContext').value.trim();
+  state.targetBiz = el('targetBiz').value.trim();
+  state.difficulty = el('difficulty').value;
+  state.goal = el('goal').value;
+
+  if(!state.apiKey){
+    alert('Enter your Anthropic API key to start.');
+    return;
+  }
+  if(!state.pitchContext){
+    alert('Describe what you\\'re selling first.');
+    return;
+  }
+
+  state.transcript = [];
+  state.stage = 'gatekeeper';
+  el('transcript').innerHTML = '';
+  document.querySelectorAll('.floor').forEach(f => f.classList.remove('active','cleared','blocked'));
+  el('floor-gatekeeper').classList.add('active');
+  el('statusLine').textContent = 'Ringing...';
+  showScreen('screen-call');
+
+  el('statusLine').textContent = 'Connecting...';
+  try{
+    const systemPrompt = buildSystemPrompt();
+    window.__systemPrompt = systemPrompt;
+    const opening = await callClaude(
+      [{ role: 'user', content: '(The phone is picked up. Begin the call as the front-desk gatekeeper answering the phone.)' }],
+      systemPrompt
+    );
+    const { stage, clean } = parseStageTag(opening);
+    state.transcript.push({role: 'assistant', content: clean});
+    pushMsg('assistant', clean);
+    if(stage) updateDirectory(stage);
+    el('statusLine').textContent = 'Live — say something.';
+  }catch(e){
+    pushMsg('assistant', 'Connection failed: ' + e.message);
+    el('statusLine').textContent = 'Error connecting.';
+  }
+}
+
+async function sendLine(){
+  const input = el('userLine');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  pushMsg('user', text);
+
+  const typing = document.createElement('div');
+  typing.className = 'msg them typing';
+  typing.textContent = stageLabel() + ' is responding...';
+  el('transcript').appendChild(typing);
+  el('transcript').scrollTop = el('transcript').scrollHeight;
+  el('sendBtn').disabled = true;
+
+  try{
+    const apiMessages = state.transcript.map(m => ({ role: m.role, content: m.content }));
+    const reply = await callClaude(apiMessages, window.__systemPrompt);
+    typing.remove();
+    const { stage, clean } = parseStageTag(reply);
+    state.transcript.push({role: 'assistant', content: clean});
+    pushMsg('assistant', clean);
+    if(stage) updateDirectory(stage);
+    if(stage === 'blocked' || stage === 'booked'){
+      el('sendBtn').disabled = true;
+      input.disabled = true;
+    } else {
+      el('sendBtn').disabled = false;
+    }
+  }catch(e){
+    typing.remove();
+    pushMsg('assistant', 'Connection error: ' + e.message);
+    el('sendBtn').disabled = false;
+  }
+}
+
+async function endCall(){
+  if(state.transcript.filter(m => m.role === 'user').length === 0){
+    showScreen('screen-setup');
+    return;
+  }
+  showScreen('screen-feedback');
+  el('feedbackContent').innerHTML = '<div class="status-line">Scoring the call...</div>';
+
+  const gradingSystem = `You are a blunt, experienced sales trainer grading a cold-call roleplay transcript. The caller was trying to get past a gatekeeper, reach a General Manager (or Maintenance/Facilities Lead if no GM exists), and achieve this goal: ${goalBrief(state.goal)}
+
+Score the caller (not the AI-played characters) on a 0-100 scale for each of these categories:
+- rapport: warmth, tone, and how quickly they built trust
+- gatekeeper_handling: how well they got past or worked with the front desk
+- objection_handling: how well they handled pushback or hesitation
+- ask_clarity: how clear and confident their ask was
+- close: how effectively they moved toward or secured the stated goal
+
+Also give an overall 0-100 score and exactly 4 short, specific, actionable tips (each 1 sentence) referencing what actually happened in this specific transcript — no generic advice.
+
+Respond with ONLY raw JSON, no markdown fences, no preamble, in exactly this shape:
+{"rapport":0,"gatekeeper_handling":0,"objection_handling":0,"ask_clarity":0,"close":0,"overall":0,"outcome":"booked|blocked|incomplete","tips":["...","...","...","..."]}`;
+
+  const transcriptText = state.transcript.map(m => (m.role === 'user' ? 'CALLER: ' : 'CHARACTER: ') + m.content).join('\\n');
+
+  try{
+    const raw = await callClaude(
+      [{ role: 'user', content: 'Transcript:\\n' + transcriptText }],
+      gradingSystem
+    );
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const data = JSON.parse(clean);
+    renderFeedback(data);
+  }catch(e){
+    el('feedbackContent').innerHTML = `<div class="error-banner">Couldn't score this call: ${e.message}</div>`;
+  }
+}
+
+function renderFeedback(data){
+  const outcomeLabel = data.outcome === 'booked' ? 'Goal Secured' : data.outcome === 'blocked' ? 'Call Ended — No Goal' : 'Call Incomplete';
+  el('feedbackContent').innerHTML = `
+    <div class="overall">
+      <div class="num">${data.overall}</div>
+      <div class="out">${outcomeLabel}</div>
+    </div>
+    <div class="score-grid">
+      <div class="score-item"><div class="label">Rapport</div><div class="val">${data.rapport}</div></div>
+      <div class="score-item"><div class="label">Gatekeeper Handling</div><div class="val">${data.gatekeeper_handling}</div></div>
+      <div class="score-item"><div class="label">Objection Handling</div><div class="val">${data.objection_handling}</div></div>
+      <div class="score-item"><div class="label">Ask Clarity</div><div class="val">${data.ask_clarity}</div></div>
+      <div class="score-item"><div class="label">Close</div><div class="val">${data.close}</div></div>
+    </div>
+    <h3>Coaching Notes</h3>
+    <ul class="tips">${data.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+  `;
+}
+
+el('startCallBtn').addEventListener('click', startCall);
+el('sendBtn').addEventListener('click', sendLine);
+el('userLine').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendLine(); }
+});
+el('endCallBtn').addEventListener('click', endCall);
+el('retryBtn').addEventListener('click', () => showScreen('screen-setup'));
+</script>
+</body>
+</html>
